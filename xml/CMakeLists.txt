@@ -1,0 +1,24 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+
+PROJECT("tinyxml" CXX C)
+
+# Debug build by default
+IF (NOT CMAKE_BUILD_TYPE)
+	SET(CMAKE_BUILD_TYPE Debug)
+ENDIF (NOT CMAKE_BUILD_TYPE)
+
+
+SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_REENTRANT -lpthread -Wall")
+
+INCLUDE_DIRECTORIES(AFTER
+	${CMAKE_CURRENT_SOURCE_DIR})
+
+ADD_LIBRARY (tinyxml
+	SHARED
+		tinystr.cpp
+		tinyxml.cpp
+		tinyxmlerror.cpp
+		tinyxmlparser.cpp
+	)
+
