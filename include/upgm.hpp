@@ -69,7 +69,7 @@ public:
 
 	void setScheme(const Config & requestScheme);
 protected:
-	typedef const std::string & (UPGM::*HookRead)(const Path & );
+	typedef std::string (UPGM::*HookRead)(const Path & );
 	typedef void (UPGM::*HookWrite)(const Path & , const std::string &);
 	void registerHook(const std::string & name, HookRead hook);
 	void registerHook(const std::string & name, HookWrite hook);
@@ -82,27 +82,49 @@ private:
 	HooksRead  _hooksRead;
 	HooksWrite _hooksWrite;
 
-	const std::string & evaluateConfigValue(const std::string & value);
+	std::string evaluateConfigValue(const std::string & value);
 	void evaluateConfigParam(const std::string & param, const std::string & value);
 	virtual std::string customVariableWithName(const std::string & name);
 	void populate(DataTree & tree, const Config::Section & sec);
 
-	const std::string & paymentHookRead(const Path & path);
-	const std::string & codeHookRead(const Path & path);
-	const std::string & answerHookRead(const Path & path);
-	const std::string & transportHookRead(const Path & path);
+	std::string paymentHookRead(const Path & path);
+	std::string codeHookRead(const Path & path);
+	std::string answerHookRead(const Path & path);
+	std::string transportHookRead(const Path & path);
+	std::string nextHook(const Path & path);
+	std::string requestHookRead(const Path & path);
 
-	const std::string & dbHookRead(const Path & path);
+	std::string dbHookRead(const Path & path);
 	void dbHookWrite(const Path & path, const std::string & value);
+
+	void stageHookWrite(const Path & path, const std::string & value);
+	void codesHookWrite(const Path & path, const std::string & value);
+	void actionHookWrite(const Path & path, const std::string & value);
+	void requestHookWrite(const Path & path, const std::string & value);
+
+	void transportHookWrite(const Path & path, const std::string & value);
+	void codeHookWrite(const Path & path, const std::string & value);
+	void resultHookWrite(const Path & path, const std::string & value);
 
 	DataTree _payment;
 	DataTree _code;
 	DataTree _answer;
-	DataTree _transport;
+	DataTree _net;
 	DataTree _database;
 
 	Config   _scheme;
 	Config   _codes;
+	unsigned int _stage;
+	std::map<int, std::string> _stages;
+
+
+	RequestTemplate _requestTemplate;
+	std::map<std::string, std::string> _requestArg;
+
+	Transport * _transport;
+	Parser * _parser;
+
+	std::string _actionName;
 };
 
 }

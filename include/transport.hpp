@@ -15,7 +15,7 @@ public:
 	void configure(const DataTree & config);
 	virtual void operator<<(const std::string & data) = 0;
 	virtual DataTree operator>>(std::string & buffer) = 0;
-private:
+protected:
 	DataTree _config;
 };
 

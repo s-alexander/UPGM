@@ -12,6 +12,8 @@ class RequestTemplate
 {
 public:
 	RequestTemplate(const std::string & request);
+	RequestTemplate();
+	RequestTemplate & operator=(const std::string & request);
 	~RequestTemplate() throw() { ;; }
 
 	typedef std::vector<std::string> Variables;
@@ -20,6 +22,7 @@ public:
 	typedef std::map<std::string, std::string> VariablesMap;
 	std::string evaluate(const VariablesMap & data);
 private:
+	void parse(const std::string & request);
 	void saveVar(const std::string & varName, size_t position);
 	std::string _request;
 	typedef std::map<size_t, std::string> ParamLocation;

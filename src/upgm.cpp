@@ -6,20 +6,32 @@
 #include <fstream>
 #include <sstream>
 #include <limits>
+#include <cstdlib>
 
 namespace PG
 {
 
 
-UPGM::UPGM()
+UPGM::UPGM(): _stage(0)
 {
 	registerHook( "pay"       , &UPGM::paymentHookRead   );
 	registerHook( "code"      , &UPGM::codeHookRead      );
 	registerHook( "answer"    , &UPGM::answerHookRead    );
 	registerHook( "transport" , &UPGM::transportHookRead );
 	registerHook( "db"        , &UPGM::dbHookRead        );
+	registerHook( "next"      , &UPGM::nextHook          );
 
-	registerHook( "db"       , &UPGM::dbHookWrite   );
+	registerHook( "db"      , &UPGM::dbHookWrite    );
+	registerHook( "stage"   , &UPGM::stageHookWrite );
+	registerHook( "codes"   , &UPGM::codesHookWrite );
+	registerHook( "action"  , &UPGM::actionHookWrite );
+
+	registerHook( "request"  , &UPGM::requestHookWrite );
+	registerHook( "request"  , &UPGM::requestHookRead );
+	registerHook( "transport"  , &UPGM::transportHookWrite );
+
+	registerHook( "code"   , &UPGM::codeHookWrite );
+	registerHook( "result" , &UPGM::resultHookWrite );
 }
 
 UPGM::~UPGM() throw()
@@ -74,7 +86,7 @@ static std::string asString(int i)
 	return buff;
 }
 
-const std::string & UPGM::evaluateConfigValue(const std::string & value)
+std::string UPGM::evaluateConfigValue(const std::string & value)
 {
 	const char variableMark = '$';
 	if (value.length() > 0)
@@ -92,42 +104,45 @@ const std::string & UPGM::evaluateConfigValue(const std::string & value)
 					HookRead hook = it->second;
 					return (this->*hook)(Path(path.begin()+1, path.end()));
 				}
-				throw HookUndefException(hookName); 
+				throw HookUndefException(hookName);
 			}
 		}
-	}	
+	}
 	return value;
 }
 
 void UPGM::evaluateConfigParam(const std::string & param, const std::string & value)
 {
 	const char variableMark = '$';
-	if (value.length() > 0)
+	if (param.length() > 0)
 	{
-		if (value[0] == variableMark)
-		{
-			const std::string pathStr(value.begin() + 1, value.end());
-			const Path path ( pathFromString( pathStr ));
-			if (path.size() > 0)
-			{
-				const std::string & hookName = path[0];
-				HooksWrite::const_iterator it = _hooksWrite.find(hookName);
-				if (it != _hooksWrite.end())
-				{
-					HookWrite hook = it->second;
-					(this->*hook)(Path(path.begin()+1, path.end()), value);
-					return;
-				}
-				throw HookUndefException(hookName); 
-			}
+		std::string::const_iterator begin = param.begin();
+		const std::string::const_iterator end = param.end();
+		if (param[0] == variableMark) {
+			++begin;
 		}
-	}	
+		const std::string pathStr(begin, end);
+		const Path path ( pathFromString( pathStr ));
+		if (path.size() > 0)
+		{
+			const std::string & hookName = path[0];
+			fprintf(stderr, "Hook name = %s\n", hookName.c_str());
+			HooksWrite::const_iterator it = _hooksWrite.find(hookName);
+			if (it != _hooksWrite.end())
+			{
+				HookWrite hook = it->second;
+				(this->*hook)(Path(path.begin()+1, path.end()), value);
+				return;
+			}
+			throw HookUndefException(hookName);
+		}
+	}
 	throw NotAVariableException(value);
 }
 
 void UPGM::populate(DataTree & tree, const Config::Section & sec)
 {
-	
+
 	for (Config::Section::const_iterator it = sec.begin();
 	     it != sec.end();
 	     ++it) {
@@ -147,154 +162,162 @@ void UPGM::evalParams(const std::string & sectionName)
 	}
 }
 
-void UPGM::request(const std::string & actionName,
-                   Transport & transport,
-                   Parser & parser)
-{
-	try {
-		const std::string request = evaluateConfigValue(_scheme.getValue(actionName, "request"));
-		// Clear variables
-		_answer    = DataTree();
-		_code      = DataTree();
-		_transport = DataTree();
-
-		RequestTemplate requestTemplate(request);
-		RequestTemplate::Variables vars = requestTemplate.variables();
-		RequestTemplate::VariablesMap varsMap;
-		for (RequestTemplate::Variables::const_iterator it = vars.begin();
-		     it != vars.end();
-		     ++it) {
-			varsMap[*it] = evaluateConfigValue(_scheme.getValue(actionName, *it));
-		}
-
-		// Sending request
-		transport << requestTemplate.evaluate(varsMap);
-
-		// Reading answer
-		std::string answer;
-
-		_transport = transport >> answer;
-
-		// Parsing answer
-		_answer = parser.parse(answer);
-	}
-	catch (const Config::NoSuchValue & e) { fprintf(stderr, "request undef (%s)\n", e.what()); }
-
-}
-
 void      UPGM::performStage(int stage,
                             Transport & transport,
                             Parser & parser,
                             const Payment & payment)
 {
+	_transport = &transport;
+	_parser = &parser;
 	RequestResult result(UNDEF);
 
 	int currentStage (stage);
-	std::string actionName = _scheme.getValue("stages", asString(currentStage));
+	std::string actionName ("main");// = _scheme.getValue("stages", asString(currentStage));
 
+	DataTree transportCfg;
+	const Config::Section & section = _scheme.section("transport");
+	for (Config::Section::const_iterator it = section.begin();
+	     it != section.end();
+	     ++it)
+	{
+		transportCfg.set(it->first, it->second);
+	}
+
+	transport.configure( transportCfg );
+
+	_actionName = actionName;
 	bool noError(true);
+	_payment = payment.generateDataTree();
 
 	do
 	{
-		
-		noError = false;
-		result = UNDEF;
-		fprintf(stderr, "Performing action %s\n", actionName.c_str());
-
-
-		 _payment = payment.generateDataTree();
-		
-		// Try to perform request
-		request(actionName, transport, parser);
-
-		// Try to access answer code
-		try {
-			const std::string code = evaluateConfigValue(_scheme.getValue(actionName, "code"));
-			
-			DataTree codeData;
-			try {
-				populate(codeData,_codes.section(code));
-			}
-			catch ( ... ) {
-				populate(codeData,_codes.section("default"));
-			}
-			
-			_code = codeData;
-		}
-		catch (const Config::NoSuchValue & e) { fprintf(stderr, "code undef (%s)\n", e.what()); }
-		fprintf(stderr, "evaluating params for %s\n", actionName.c_str());
-
-		// Evaluate parameters
+		actionName = _actionName;
 		evalParams(actionName);
-
-		// Get next action or result
-		try {
-			result = asRequestResult(evaluateConfigValue(_scheme.getValue(actionName, "result")));
-			evalParams(actionName);
-		}
-		catch (const Config::NoSuchValue & e)
-		{
-			try {
-				actionName = evaluateConfigValue(_scheme.getValue(actionName, "next"));
-				fprintf(stderr, "next action = %s\n", actionName.c_str());
-				noError = true;
-			}
-			catch (const Config::NoSuchValue & e)
-			{
-				throw std::runtime_error("no 'next' or 'result' specified. I don't know what to do now. ");
-			}
-		}
-
-		if (result == NEXT_STAGE)
-		{	
-			++currentStage;
-			actionName = evaluateConfigValue(_scheme.getValue("stages", asString(currentStage)));
-			noError = true;
-		}
-	} while ( noError );
-
-	fprintf(stderr, "---FINAL---\nRESULT  : [%s]\n", asString(result).c_str());
-	fprintf(stderr, "MESSAGE : [%s]\n", _code("message").c_str());
+		// Evaluate parameters
+	}
+	while ( actionName != _actionName );
 }
 
 
 std::string UPGM::customVariableWithName(const std::string & name)
 {
-	throw VariableUndefException(name); 
+	throw VariableUndefException(name);
 }
 
 void UPGM::setScheme(const Config & requestScheme)
 {
 	_scheme = requestScheme;
-	_codes.parseFile(_scheme.getValue("stages", "codes"));
 }
 
-const std::string & UPGM::paymentHookRead(const Path & path)
+std::string UPGM::paymentHookRead(const Path & path)
 {
 	return _payment(path);
 }
-const std::string & UPGM::codeHookRead(const Path & path)
+std::string UPGM::codeHookRead(const Path & path)
 {
 	return _code(path);
 }
-const std::string & UPGM::answerHookRead(const Path & path)
+std::string UPGM::answerHookRead(const Path & path)
 {
 	return _answer(path);
 }
 
-const std::string & UPGM::transportHookRead(const Path & path)
+std::string UPGM::transportHookRead(const Path & path)
 {
-	return _transport(path);
+	return _net(path);
 }
 
-const std::string & UPGM::dbHookRead(const Path & path)
+std::string UPGM::dbHookRead(const Path & path)
 {
 	return _database(path);
 }
 
 void UPGM::dbHookWrite(const Path & path, const std::string & value)
 {
-	_database(path) = value;
+	_database.set(path, value);
+}
+
+void UPGM::stageHookWrite(const Path & path, const std::string & value)
+{
+
+	if (!path.empty())
+	{
+		_stages[ atoi(path[0].c_str()) ] = value;
+	}
+}
+
+void UPGM::codesHookWrite(const Path & path, const std::string & value)
+{
+	fprintf(stderr, "parsing file [%s]\n", value.c_str());
+	_codes.parseFile(value);
+}
+
+void UPGM::actionHookWrite(const Path & path, const std::string & value)
+{
+	_actionName = value;
+}
+
+std::string UPGM::nextHook(const Path & path)
+{
+	++_stage;
+	_actionName = _stages[ _stage ];
+	// _actionName = ;;
+	return _actionName;
+}
+
+void UPGM::requestHookWrite(const Path & path, const std::string & value)
+{
+	if ( path.empty() )
+	{
+		_requestTemplate = value;
+	} else {
+		_requestArg[ path[0] ] = value;
+	}
+}
+
+std::string UPGM::requestHookRead(const Path & path)
+{
+	return _requestTemplate.evaluate(_requestArg);
+}
+
+void UPGM::transportHookWrite(const Path & path, const std::string & value)
+{
+	if (!path.empty())
+	{
+		fprintf(stderr, "performing request [%s]\n", value.c_str());
+		*_transport << value;
+
+		std::string answer;
+		_net = *_transport >> answer;
+
+		// Parsing answer
+		_answer = _parser->parse(answer);
+		fprintf(stderr, "result = [%s]\n", answer.c_str());
+	}
+}
+
+void UPGM::resultHookWrite(const Path & path, const std::string & value)
+{
+	fprintf(stderr, "result = %s\n", value.c_str());
+}
+
+void UPGM::codeHookWrite(const Path & path, const std::string & value)
+{
+	try {
+		const std::string & code = value;
+		fprintf(stderr, "code = %s\n", code.c_str());
+
+		DataTree codeData;
+		try {
+			populate(codeData,_codes.section(code));
+		}
+		catch ( ... ) {
+			populate(codeData,_codes.section("default"));
+		}
+
+		_code = codeData;
+	}
+	catch (const Config::NoSuchValue & e) { fprintf(stderr, "code undef (%s)\n", e.what()); }
 }
 
 }

@@ -21,7 +21,7 @@ bool Config::isSkippable(char chr)
 	const char * end = skippable+sizeof(skippable)/sizeof(skippable[0]);
 	const bool result = std::find(skippable,
 	                              end,
-	                              chr) != end;	
+	                              chr) != end;
 	return result;
 }
 
@@ -29,10 +29,10 @@ void Config::flush()
 {
 	bool root = _section.empty();
 	if (root) {
-		_root[_param] = _value;
+		_root.push_back( ConfigEntry ( _param, _value) );
 	}
 	else {
-		_data[_section][_param] = _value;
+		_data[_section].push_back( ConfigEntry ( _param, _value) );
 	}
 	_param.clear();
 	_value.clear();
@@ -161,13 +161,13 @@ void Config::parse(const std::string & data)
 	}
 }
 
-const std::string & Config::getValue(const std::string & sectionName,
+/*const std::string & Config::getValue(const std::string & sectionName,
                                      const std::string & paramName) const
 {
 	const Section & sec = section(sectionName);
 	Section::const_iterator param = sec.find(paramName);
 	if (param != sec.end())
-	{	
+	{
 		return param->second;
 	}
 	throw NoSuchValue(paramName);
@@ -177,11 +177,11 @@ const std::string & Config::getValue(const std::string & name) const
 {
 	Section::const_iterator param = _root.find(name);
 	if (param != _root.end())
-	{	
+	{
 		return param->second;
 	}
 	throw NoSuchValue(name);
-}
+}*/
 
 const Config::Section & Config::section(const std::string & name) const
 {

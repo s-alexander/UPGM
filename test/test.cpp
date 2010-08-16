@@ -8,6 +8,7 @@
 #include <upgm/request_template.hpp>
 #include <upgm/xml_parser.hpp>
 #include <test/test_transport.hpp>
+#include <upgm/http_transport.hpp>
 
 #include <upgm/upgm.hpp>
 
@@ -19,7 +20,7 @@ int main(int argc, char ** argv)
 		return -1;
 	}
 
-	
+
 	PG::Config config;
 	config.parseFile(argv[1]);
 
@@ -30,7 +31,8 @@ int main(int argc, char ** argv)
 	std::queue<std::string> answers;
 	answers.push("<?xml version=\"1.0\">\n<code>0</code><errmsg>all ok</errmsg>");
 	answers.push("<?xml version=\"1.0\">\n<code>0</code><errmsg>unsupported sum</errmsg>");
-	TEST::TestTransport transport(answers);
+	//TEST::TestTransport transport(answers);
+	PG::HTTPTransport transport;
 	PG::XmlParser parser;
 	upgm.performStage(0, transport, parser, payment);
 

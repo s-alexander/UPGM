@@ -10,8 +10,7 @@ void RequestTemplate::saveVar(const std::string & varName, size_t position)
 	_location[position] = varName;
 }
 
-RequestTemplate::RequestTemplate(const std::string & request):
-	_request( request )
+void RequestTemplate::parse(const std::string & request)
 {
 	bool escaped = false;
 	const char varMark = '$';
@@ -32,7 +31,7 @@ RequestTemplate::RequestTemplate(const std::string & request):
 	{
 		const char chr = *it;
 		const bool lastChr = (it+1 == request.end());
-		
+
 		switch (readMode)
 		{
 			case DATA:
@@ -64,10 +63,24 @@ RequestTemplate::RequestTemplate(const std::string & request):
 			buff.append(request, blockStart, blockEnd-blockStart+1);
 			blockStart = i+1;
 		}
-			
 		blockEnd = i;
 	}
 	_request = buff;
+}
+
+RequestTemplate & RequestTemplate::operator=(const std::string & request)
+{
+	parse(request);
+
+	return *this;
+}
+
+RequestTemplate::RequestTemplate()
+{
+}
+RequestTemplate::RequestTemplate(const std::string & request)
+{
+	parse(request);
 }
 
 std::string RequestTemplate::evaluate(const VariablesMap & data)

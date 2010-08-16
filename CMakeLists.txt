@@ -27,12 +27,14 @@ ADD_LIBRARY (upgm
 	src/payment.cpp
 	src/xml_parser.cpp
 	src/request_template.cpp
+	src/http_transport.cpp
+	src/payguide_curl.cpp
 	)
 
 ADD_EXECUTABLE (test
 	test/test_transport.cpp
 	test/test.cpp
 	)
-TARGET_LINK_LIBRARIES(upgm tinyxml)
+TARGET_LINK_LIBRARIES(upgm tinyxml curl)
 TARGET_LINK_LIBRARIES(test upgm)
 

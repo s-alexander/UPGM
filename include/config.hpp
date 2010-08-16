@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 #include <stdexcept>
 
 namespace PG
@@ -21,15 +22,15 @@ public:
 	private:
 		std::string _value;
 	};
-
-	typedef std::map<std::string, std::string> Section;
+	typedef std::pair<std::string, std::string> ConfigEntry;
+	typedef std::vector< ConfigEntry > Section;
 	Config();
 	~Config() throw();
 	void parse(const std::string & data);
 	void parseFile(const std::string & filename);
-	const std::string & getValue(const std::string & section,
-	                     const std::string & name) const;
-	const std::string & getValue(const std::string & name) const;
+//	const std::string & getValue(const std::string & section,
+//	                     const std::string & name) const;
+//	const std::string & getValue(const std::string & name) const;
 	const Section & section(const std::string & name) const;
 	static bool isSkippable(char chr);
 private:
@@ -37,9 +38,9 @@ private:
 	void resetTmp(std::string & buffer);
 	void saveTmp(std::string & buffer, const std::string & data);
 	void appendTmp(std::string & buffer, const std::string & data);
-	
+
 	typedef std::map<std::string, Section> CfgData;
-	
+
 	Section _root;
 	CfgData _data;
 	size_t _blockStart;
