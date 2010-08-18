@@ -1,6 +1,7 @@
 #include <upgm/payment.hpp>
 #include <upgm/data_tree.hpp>
 #include <upgm/request_template.hpp>
+#include <upgm/common_hooks.hpp>
 #include <upgm/upgm.hpp>
 
 #include <fstream>
@@ -12,9 +13,13 @@ namespace PG
 {
 
 
-UPGM::UPGM(): _stage(0)
+UPGM::UPGM()
 {
-	registerHook( "pay"       , &UPGM::paymentHookRead   );
+	// TODO defeat memleak
+	registerHook(new StageHook(&_sequence));
+	registerHook(new PrintHook());
+
+/*	registerHook( "pay"       , &UPGM::paymentHookRead   );
 	registerHook( "code"      , &UPGM::codeHookRead      );
 	registerHook( "answer"    , &UPGM::answerHookRead    );
 	registerHook( "transport" , &UPGM::transportHookRead );
@@ -31,7 +36,7 @@ UPGM::UPGM(): _stage(0)
 	registerHook( "transport"  , &UPGM::transportHookWrite );
 
 	registerHook( "code"   , &UPGM::codeHookWrite );
-	registerHook( "result" , &UPGM::resultHookWrite );
+	registerHook( "result" , &UPGM::resultHookWrite );*/
 }
 
 UPGM::~UPGM() throw()
@@ -55,13 +60,17 @@ std::string evaluateStringFromTemplate(const RequestTemplate & request)
 
 void UPGM::registerHook(const std::string & name, HookRead hook)
 {
-	_hooksRead[name] = hook;
+	//_hooksRead[name] = hook;
 }
 
 void UPGM::registerHook(const std::string & name, HookWrite hook)
 {
-	//_hooksRead[name] = hook;
-	_hooksWrite[name] = hook;
+	//_hooksWrite[name] = hook;
+}
+
+void UPGM::registerHook(Hook * hook)
+{
+	_hooks[ hook->name() ] = hook;
 }
 
 static std::string asString(UPGM::RequestResult result)
@@ -88,6 +97,7 @@ static std::string asString(int i)
 
 std::string UPGM::evaluateConfigValue(const std::string & value)
 {
+	fprintf(stderr, "evaluate value [%s]\n", value.c_str());
 	const char variableMark = '$';
 	if (value.length() > 0)
 	{
@@ -98,11 +108,10 @@ std::string UPGM::evaluateConfigValue(const std::string & value)
 			if (path.size() > 0)
 			{
 				const std::string & hookName = path[0];
-				HooksRead::const_iterator it = _hooksRead.find(hookName);
-				if (it != _hooksRead.end())
+				Hooks::const_iterator it = _hooks.find(hookName);
+				if (it != _hooks.end())
 				{
-					HookRead hook = it->second;
-					return (this->*hook)(Path(path.begin()+1, path.end()));
+					return it->second->read(Path(path.begin()+1, path.end()));
 				}
 				throw HookUndefException(hookName);
 			}
@@ -113,6 +122,7 @@ std::string UPGM::evaluateConfigValue(const std::string & value)
 
 void UPGM::evaluateConfigParam(const std::string & param, const std::string & value)
 {
+	fprintf(stderr, "evaluate param [%s]\n", param.c_str());
 	const char variableMark = '$';
 	if (param.length() > 0)
 	{
@@ -126,12 +136,10 @@ void UPGM::evaluateConfigParam(const std::string & param, const std::string & va
 		if (path.size() > 0)
 		{
 			const std::string & hookName = path[0];
-			fprintf(stderr, "Hook name = %s\n", hookName.c_str());
-			HooksWrite::const_iterator it = _hooksWrite.find(hookName);
-			if (it != _hooksWrite.end())
+			Hooks::const_iterator it = _hooks.find(hookName);
+			if (it != _hooks.end())
 			{
-				HookWrite hook = it->second;
-				(this->*hook)(Path(path.begin()+1, path.end()), value);
+				it->second->write(Path(path.begin()+1, path.end()), value);
 				return;
 			}
 			throw HookUndefException(hookName);
@@ -167,6 +175,11 @@ void      UPGM::performStage(int stage,
                             Parser & parser,
                             const Payment & payment)
 {
+
+	registerHook(new TransportHook(&transport));
+	registerHook(new ParserHook(&parser));
+
+
 	_transport = &transport;
 	_parser = &parser;
 	RequestResult result(UNDEF);
@@ -174,7 +187,7 @@ void      UPGM::performStage(int stage,
 	int currentStage (stage);
 	std::string actionName ("main");// = _scheme.getValue("stages", asString(currentStage));
 
-	DataTree transportCfg;
+/*	DataTree transportCfg;
 	const Config::Section & section = _scheme.section("transport");
 	for (Config::Section::const_iterator it = section.begin();
 	     it != section.end();
@@ -183,19 +196,20 @@ void      UPGM::performStage(int stage,
 		transportCfg.set(it->first, it->second);
 	}
 
-	transport.configure( transportCfg );
+	transport.configure( transportCfg );*/
 
-	_actionName = actionName;
+	//_actionName = actionName;
 	bool noError(true);
 	_payment = payment.generateDataTree();
+	evalParams(actionName);
 
 	do
 	{
-		actionName = _actionName;
+		actionName = _sequence.stageName();
 		evalParams(actionName);
 		// Evaluate parameters
 	}
-	while ( actionName != _actionName );
+	while ( actionName != _sequence.stageName() );
 }
 
 
@@ -209,7 +223,7 @@ void UPGM::setScheme(const Config & requestScheme)
 	_scheme = requestScheme;
 }
 
-std::string UPGM::paymentHookRead(const Path & path)
+/*std::string UPGM::paymentHookRead(const Path & path)
 {
 	return _payment(path);
 }
@@ -318,6 +332,6 @@ void UPGM::codeHookWrite(const Path & path, const std::string & value)
 		_code = codeData;
 	}
 	catch (const Config::NoSuchValue & e) { fprintf(stderr, "code undef (%s)\n", e.what()); }
-}
+}*/
 
 }

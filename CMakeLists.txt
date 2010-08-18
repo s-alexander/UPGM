@@ -38,3 +38,4 @@ ADD_EXECUTABLE (test
 TARGET_LINK_LIBRARIES(upgm tinyxml curl)
 TARGET_LINK_LIBRARIES(test upgm)
 
+ADD_SUBDIRECTORY(modules)
