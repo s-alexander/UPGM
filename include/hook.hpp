@@ -11,7 +11,7 @@ class Hook
 public:
 	Hook() { ;; }
 	virtual ~Hook() throw() { ;; }
-	virtual const char * name() = 0;
+	virtual const char * name() const = 0;
 
 	virtual std::string read(const Path & path) = 0;
 	virtual void write(const Path & path, const std::string & value) = 0;

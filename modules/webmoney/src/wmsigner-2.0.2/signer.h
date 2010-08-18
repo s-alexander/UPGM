@@ -3,7 +3,7 @@
 #include "stdafx.h"
 #include "cmdbase.h"
 
-#define MAXBUF  8192 
+#define MAXBUF  8192
 #define MAXSTR  8192
 
 const long lMinKeyFileSize	= 164;//smallest size of the keysfaile
@@ -44,7 +44,7 @@ public:
 public:
   int KeyFromCL;
   char KeyBuffer[164];
-  void SetKeyFromCL( int flag, char *KeyBuf );
+  void SetKeyFromCL( int flag, const char *KeyBuf );
 //-------------------------------------------------
 };
 

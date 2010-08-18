@@ -12,6 +12,8 @@
 
 #include <upgm/upgm.hpp>
 
+#include "../modules/webmoney/src/webmoney.hpp"
+
 int main(int argc, char ** argv)
 {
 	if (argc < 2)
@@ -24,15 +26,15 @@ int main(int argc, char ** argv)
 	PG::Config config;
 	config.parseFile(argv[1]);
 
-	PG::UPGM upgm;
+	PG::WebMoney upgm;
 	upgm.setScheme(config);
 
 	PG::Payment payment;
 	std::queue<std::string> answers;
 	answers.push("<?xml version=\"1.0\">\n<code>0</code><errmsg>all ok</errmsg>");
-	answers.push("<?xml version=\"1.0\">\n<code>0</code><errmsg>unsupported sum</errmsg>");
-	TEST::TestTransport transport(answers);
-	//PG::HTTPTransport transport;
+	answers.push("<?xml version=\"1.0\">\n<code>1</code><errmsg>unsupported sum</errmsg>");
+	//TEST::TestTransport transport(answers);
+	PG::HTTPTransport transport;
 	PG::XmlParser parser;
 	upgm.performStage(0, transport, parser, payment);
 

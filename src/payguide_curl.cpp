@@ -64,7 +64,7 @@ static size_t GetCurlData(void *buffer, size_t size, size_t nmemb, void *userp)
 	try
 	{
 		if (userp==NULL) return 0;
-		std::string *buff=*((std::string **)userp);
+		std::string * & buff=*((std::string **)userp);
 
 		if (0 == buff) {
 			buff = new std::string((const char *)buffer, nmemb);
@@ -133,6 +133,9 @@ bool Curl::SendRequest(const std::string & url,
 		answer_.assign(*dataBuff);
 		delete dataBuff;
 		return true;
+	}
+	else {
+		fprintf(stderr, "empty data\n");
 	}
 
 	return false;

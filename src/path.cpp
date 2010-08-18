@@ -14,6 +14,7 @@ Path pathFromString(const std::string & string)
 	bool escaped = false;
 	std::string buff;
 	size_t i (0);
+	fprintf(stderr, "converting %s to path\n", string.c_str());
 	for (std::string::const_iterator it = string.begin();
 	     it != string.end();
 	     ++it, ++i)
@@ -36,8 +37,8 @@ Path pathFromString(const std::string & string)
 				if (lastChar && !isSeparator) { ++end; }
 				buff.append(string, begin, end-begin);
 				result.push_back(buff);
+				fprintf(stderr, "add [%s]\n",buff.c_str());
 				buff.clear();
-				
 				begin = ++end;
 				if (lastChar && isSeparator) { result.push_back(std::string()); }
 			}

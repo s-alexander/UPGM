@@ -74,7 +74,7 @@ bool Signer::SecureKeyByIDPWHalf(char *buf, DWORD dwBuf)
     strncpy(pBuf, m_szPassword, len-1);
     pBuf[len-1] = '\0';
     szIDPW += pBuf;
-    
+
     delete [] pBuf;
   }
   Keys::CountCrcMD4(dwCRC, szIDPW, szIDPW.strlen());
@@ -93,7 +93,7 @@ bool Signer::SecureKeyByIDPWHalf(char *buf, DWORD dwBuf)
   return true;
 }
 //---------------------------------------------------------
-void Signer::SetKeyFromCL( int flag, char *KeyBuf )
+void Signer::SetKeyFromCL( int flag, const char *KeyBuf )
 {
    KeyFromCL = FALSE;
    if( flag == TRUE ) KeyFromCL = TRUE;
@@ -108,7 +108,7 @@ int Signer::LoadKeys()
   int errLoadKey;
   int fh = -1;
   int st_size = 0;
-  const int nMaxBufLen = 164; 
+  const int nMaxBufLen = 164;
   char *pBufRead = new char[nMaxBufLen];   // Here Keys must be
   m_siErrorCode = 0;
   KeyFromCL = FALSE;
@@ -135,7 +135,7 @@ if( (!isIgnoreKeyFile) && (Key64Flag == FALSE) ) {
     bKeysReaded = (nReaden == lMinKeyFileSize);
   }
   __close( fh );
-} 
+}
 else {
    bKeysReaded = true;
    nReaden = lMinKeyFileSize;
@@ -254,14 +254,14 @@ bool Signer::Sign(const char *szIn, szptr& szSign)
 #ifdef _DEBUG
         printf("\n\rSign - prepare end");
 #endif
-    
+
     delete [] charCrpBlock;
     delete [] ptrCrpBlock;
 
 #ifdef _DEBUG
         printf("\n\rSign - end return true");
 #endif
-    
+
     return true;
   }
 
@@ -283,7 +283,7 @@ int Signer2::LoadKeys()
   int errLoadKey;
 
   int nStrKeyDataLen = m_strKeyData.strlen();
-  const int nMaxBufLen = 164; 
+  const int nMaxBufLen = 164;
   if ((nStrKeyDataLen>0) && (nStrKeyDataLen < nMaxBufLen*2))
   {
     BYTE *bKeyData = new BYTE[nMaxBufLen];

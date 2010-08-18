@@ -31,11 +31,12 @@ ADD_LIBRARY (upgm
 	src/payguide_curl.cpp
 	)
 
+TARGET_LINK_LIBRARIES(upgm tinyxml curl)
+
+ADD_SUBDIRECTORY(modules)
+
 ADD_EXECUTABLE (test
 	test/test_transport.cpp
 	test/test.cpp
 	)
-TARGET_LINK_LIBRARIES(upgm tinyxml curl)
-TARGET_LINK_LIBRARIES(test upgm)
-
-ADD_SUBDIRECTORY(modules)
+TARGET_LINK_LIBRARIES(test webmoney)

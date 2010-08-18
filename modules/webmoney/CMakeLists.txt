@@ -14,17 +14,17 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_REENTRANT -lpthread -Wall")
 INCLUDE_DIRECTORIES(AFTER
 	${CMAKE_CURRENT_SOURCE_DIR})
 
-ADD_EXECUTABLE (wmsigner
-	src/wmsigner/base64.cpp
-	src/wmsigner/cmdbase.cpp
-	#	src/wmsigner/code64.cpp
-	src/wmsigner/crypto.cpp
-	src/wmsigner/md4.cpp
-	src/wmsigner/rsalib1.cpp
-	src/wmsigner/signer.cpp
-	src/wmsigner/stdafx.cpp
-	src/wmsigner/wmsigner.cpp
-	)
+#ADD_EXECUTABLE (wmsigner
+#	src/wmsigner/base64.cpp
+#	src/wmsigner/cmdbase.cpp
+#	#	src/wmsigner/code64.cpp
+#	src/wmsigner/crypto.cpp
+#	src/wmsigner/md4.cpp
+#	src/wmsigner/rsalib1.cpp
+#	src/wmsigner/signer.cpp
+#	src/wmsigner/stdafx.cpp
+#	src/wmsigner/wmsigner.cpp
+#	)
 
 ADD_EXECUTABLE (code64
 	src/wmsigner/base64.cpp
@@ -37,3 +37,19 @@ ADD_EXECUTABLE (code64
 	src/wmsigner/stdafx.cpp
 	)
 
+ADD_LIBRARY (wmsigner
+	SHARED
+	src/wmsigner/base64.cpp
+	src/wmsigner/cmdbase.cpp
+	src/wmsigner/crypto.cpp
+	src/wmsigner/md4.cpp
+	src/wmsigner/rsalib1.cpp
+	src/wmsigner/signer.cpp
+	src/wmsigner/stdafx.cpp
+	)
+
+ADD_LIBRARY(webmoney
+	SHARED
+	src/webmoney.cpp)
+
+TARGET_LINK_LIBRARIES(webmoney upgm wmsigner)
