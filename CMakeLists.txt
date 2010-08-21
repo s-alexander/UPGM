@@ -12,13 +12,15 @@ SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_REENTRANT -lpthread -Wall")
 
 INCLUDE_DIRECTORIES(AFTER
-	${CMAKE_CURRENT_SOURCE_DIR})
+	${CMAKE_CURRENT_SOURCE_DIR}
+	"/usr/include/mysql")
 
 ADD_SUBDIRECTORY(xml)
 
 ADD_LIBRARY (upgm
 	SHARED
 	src/upgm.cpp
+	src/common_hooks.cpp
 	src/config.cpp
 	src/data_tree.cpp
 	src/path.cpp
@@ -29,9 +31,12 @@ ADD_LIBRARY (upgm
 	src/request_template.cpp
 	src/http_transport.cpp
 	src/payguide_curl.cpp
+	src/db.cpp
+	src/db_mysql.cpp
+	src/shared_mysql_connection.cpp
 	)
 
-TARGET_LINK_LIBRARIES(upgm tinyxml curl)
+TARGET_LINK_LIBRARIES(upgm tinyxml curl mysqlpp)
 
 ADD_SUBDIRECTORY(modules)
 

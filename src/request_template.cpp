@@ -12,6 +12,7 @@ void RequestTemplate::saveVar(const std::string & varName, size_t position)
 
 void RequestTemplate::parse(const std::string & request)
 {
+	_location.clear();
 	bool escaped = false;
 	const char varMark = '$';
 	const char varStart = '(';

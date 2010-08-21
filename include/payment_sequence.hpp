@@ -40,6 +40,18 @@ public:
 		if (it != _stageId.end()) { _stage = it->second; }
 		_stageName = stageName;
 	}
+	void setStage(size_t stage) {
+		const StageNames::const_iterator it = _stageNames.find(stage);
+		if (it != _stageNames.end()) {
+			_stageName = it->second;
+			_stage = stage;
+			fprintf(stderr, "stage set to %s\n", _stageName.c_str());
+		}
+		else {
+			fprintf(stderr, "stage %i not found\n", stage);
+			throw InvalidArgumentException();
+		}
+	}
 private:
 	size_t _stage;
 	std::string _stageName;

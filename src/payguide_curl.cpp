@@ -68,11 +68,9 @@ static size_t GetCurlData(void *buffer, size_t size, size_t nmemb, void *userp)
 
 		if (0 == buff) {
 			buff = new std::string((const char *)buffer, nmemb);
-			fprintf(stderr, ">> [%s]\n", buff->c_str());
 		}
 		else {
 			buff->append((const char *)buffer, nmemb);
-			fprintf(stderr, ">> [%s]\n", buff->c_str());
 		}
 	}
 	catch ( ... ) { return 0; }

@@ -9,6 +9,8 @@
 #include <upgm/xml_parser.hpp>
 #include <test/test_transport.hpp>
 #include <upgm/http_transport.hpp>
+#include <upgm/db_mysql.hpp>
+#include <upgm/shared_mysql_connection.hpp>
 
 #include <upgm/upgm.hpp>
 
@@ -34,9 +36,11 @@ int main(int argc, char ** argv)
 	answers.push("<?xml version=\"1.0\">\n<code>0</code><errmsg>all ok</errmsg>");
 	answers.push("<?xml version=\"1.0\">\n<code>1</code><errmsg>unsupported sum</errmsg>");
 	//TEST::TestTransport transport(answers);
+	PG::SharedMysqlConnection mysqlConnection;
 	PG::HTTPTransport transport;
 	PG::XmlParser parser;
-	upgm.performStage(0, transport, parser, payment);
+	PG::DbMysql db(&mysqlConnection);
+	upgm.performStage(0, transport, parser, payment, db);
 
 	return 0;
 }

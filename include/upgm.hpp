@@ -8,6 +8,7 @@
 #include <upgm/data_tree.hpp>
 #include <upgm/config.hpp>
 #include <upgm/transport.hpp>
+#include <upgm/db.hpp>
 #include <upgm/parser.hpp>
 #include <upgm/path.hpp>
 #include <upgm/payment_sequence.hpp>
@@ -69,7 +70,8 @@ public:
 	void     performStage(int stage,
 	                      Transport & transport,
 	                      Parser & parser,
-	                      Payment & payment);
+	                      Payment & payment,
+	                      Db & db);
 
 	void setScheme(const Config & requestScheme);
 protected:

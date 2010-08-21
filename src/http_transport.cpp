@@ -82,7 +82,6 @@ PG::DataTree HTTPTransport::operator>>(std::string & buffer)
 {
 	_curl->WaitAnswer();
 	buffer = _curl->Answer();
-	fprintf(stderr, "GOT [%s]n", buffer.c_str());
 
 	// TODO check error
 	return DataTree();

@@ -28,6 +28,12 @@ UPGM::~UPGM() throw()
 void UPGM::registerHook(HookPtr  hook)
 {
 	const char * hookName = hook->name();
+	try
+	{
+		const Config::Section & section = _scheme.section(hookName);
+		hook->configure(section);
+	}
+	catch (...) { /* unconfigured*/ }
 	const Hooks::iterator it = _hooks.find(hookName);
 	const Hooks::const_iterator end = _hooks.end();
 	if (end != it)
@@ -104,27 +110,44 @@ void UPGM::evalParams(const std::string & sectionName)
 	}
 }
 
-void      UPGM::performStage(int stage,
-                            Transport & transport,
-                            Parser & parser,
-                            Payment & payment)
+void UPGM::performStage(int stage,
+                        Transport & transport,
+                        Parser & parser,
+                        Payment & payment,
+                        Db & db)
 {
-	registerHook(HookPtr(new StageHook(&_sequence)));
-	registerHook(HookPtr(new PrintHook()));
-	registerHook(HookPtr(new CodeHook()));
-
-	registerHook(HookPtr(new TransportHook(&transport)));
-	registerHook(HookPtr(new ParserHook(&parser)));
-	registerHook(HookPtr(new RequestHook()));
-	registerHook(HookPtr(new PaymentHook(&payment)));
-
-	registerUserHooks(transport, parser, payment);
-
-	do
+	try
 	{
-		evalParams(_sequence.stageName());
+		registerHook(HookPtr(new StageHook(&_sequence)));
+		registerHook(HookPtr(new PrintHook()));
+		registerHook(HookPtr(new CodeHook()));
+
+		registerHook(HookPtr(new TransportHook(&transport)));
+		registerHook(HookPtr(new ParserHook(&parser)));
+		registerHook(HookPtr(new RequestHook()));
+		registerHook(HookPtr(new PaymentHook(&payment)));
+		registerHook(HookPtr(new DbHook(&db)));
+
+		registerUserHooks(transport, parser, payment);
+
+		do
+		{
+			evalParams(_sequence.stageName());
+		}
+		while ( payment.stateUndef() );
 	}
-	while ( payment.stateUndef() );
+	catch (std::exception & e)
+	{
+		const char * errStr = e.what();
+		fprintf(stderr, "Error %s\n", errStr);
+		payment.error(errStr ? errStr : "(null)");
+		payment.sleep(60*10);
+	}
+	catch (...)
+	{
+		payment.error("Unknown error occured");
+		payment.failed();
+	}
 
 }
 
