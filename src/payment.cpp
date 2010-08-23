@@ -7,6 +7,7 @@ DataTree Payment::generateDataTree() const
 {
 	DataTree result;
 	result.set("id", "13");
+	result.set("data", "Alex Sergeev$Test$123123$$573");
 	return result;
 }
 

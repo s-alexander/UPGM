@@ -16,7 +16,7 @@ std::string PrintHook::read(const Path & path) {
 
 void PrintHook::write(const Path & path, const std::string & value) {
 	if (path.empty()) {
-		fprintf(stderr, " * %s\n", value.c_str());
+		fprintf(stderr, " * [%s]\n", value.c_str());
 	}
 	else {
 		throw InvalidArgumentException();
@@ -126,12 +126,49 @@ void ParserHook::write(const Path & path, const std::string & value) {
 	}
 }
 
-PaymentHook::PaymentHook(Payment * pay):_pay(pay) { _data = pay->generateDataTree(); }
+PaymentHook::PaymentHook(Payment * pay):_pay(pay), _dataParsed(false)
+{
+	_data = pay->generateDataTree();
+}
 PaymentHook::~PaymentHook() throw() { ;; }
+
+static std::vector<std::string> arrayFromStringWithSeparators(const std::string & data, const std::string & separator)
+{
+	std::vector<std::string> result;
+	typedef std::string::const_iterator iter;
+	size_t pos(0);
+	const size_t len = data.size();
+	const size_t sepLen = separator.size();
+	while (pos != std::string::npos && pos < len)
+	{
+		const size_t next = data.find(separator, pos);
+		if (next != std::string::npos) {
+			result.push_back(std::string(data.begin()+pos, data.begin()+next));
+			pos = next+sepLen;
+		} else {
+			result.push_back(std::string(data.begin()+pos, data.end()));
+			break;
+		}
+	}
+	return result;
+}
 
 std::string PaymentHook::read(const Path & path)
 {
-	return _data(path);
+	if (path.size() == 1)
+	{
+		return _data(path);
+	}
+	else if (path.size() == 2 && "data" == path[0])
+	{
+		if (!_dataParsed)
+		{
+			_payData = arrayFromStringWithSeparators(_data("data"), param("data_separator"));
+			_dataParsed = true;
+		}
+		return _payData.at(atoi(path[1].c_str()));
+	}
+	throw InvalidArgumentException();
 }
 void PaymentHook::write(const Path & path, const std::string & value)
 {
@@ -169,19 +206,22 @@ void CodeHook::populate(DataTree & tree, const Config::Section & sec)
 	}
 }
 
-CodeHook::CodeHook() { ;; }
+CodeHook::CodeHook():_codesAreLoaded(false) { ;; }
 CodeHook::~CodeHook() throw() { ;; }
 
 std::string CodeHook::read(const Path & path) {
 	return _data(path);
 }
+
 void CodeHook::write(const Path & path, const std::string & value)
 {
-	if (path.size()==1 && path[0] == "def")
+	if (!_codesAreLoaded)
 	{
-		_codes.parse(value);
+		_codes.parseFile(param("file"));
+		_codesAreLoaded = true;
 	}
-	else if (path.empty())
+
+	if (path.empty())
 	{
 		try {
 			const std::string & code = value;

@@ -91,6 +91,8 @@ public:
 private:
 	DataTree _data;
 	Payment * _pay;
+	bool _dataParsed;
+	std::vector<std::string> _payData;
 };
 
 class CodeHook: public Hook
@@ -106,6 +108,7 @@ public:
 	virtual std::string read(const Path & path);
 	virtual void write(const Path & path, const std::string & value);
 private:
+	bool _codesAreLoaded;
 	Config _codes;
 	DataTree _data;
 };
