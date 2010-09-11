@@ -15,7 +15,7 @@ INCLUDE_DIRECTORIES(AFTER
 	${CMAKE_CURRENT_SOURCE_DIR})
 
 ADD_LIBRARY (tinyxml
-	SHARED
+	STATIC
 		tinystr.cpp
 		tinyxml.cpp
 		tinyxmlerror.cpp

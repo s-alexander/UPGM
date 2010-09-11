@@ -12,7 +12,7 @@ SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_REENTRANT -lpthread -Wall")
 
 INCLUDE_DIRECTORIES(AFTER
-	${CMAKE_CURRENT_SOURCE_DIR})
+	${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 #ADD_EXECUTABLE (wmsigner
 #	src/wmsigner/base64.cpp
@@ -38,7 +38,7 @@ ADD_EXECUTABLE (code64
 	)
 
 ADD_LIBRARY (wmsigner
-	SHARED
+	STATIC
 	src/wmsigner/base64.cpp
 	src/wmsigner/cmdbase.cpp
 	src/wmsigner/crypto.cpp
@@ -49,7 +49,7 @@ ADD_LIBRARY (wmsigner
 	)
 
 ADD_LIBRARY(webmoney
-	SHARED
+	STATIC
 	src/webmoney.cpp)
 
 TARGET_LINK_LIBRARIES(webmoney upgm wmsigner)

@@ -1,0 +1,94 @@
+#include "@PAYGUIDE_SRC@/src/pay.h"
+#include "@PAYGUIDE_SRC@/src/core.h"
+#include "@MODPATH@/include/@MODNAME@.hpp"
+#include "@CMAKE_SOURCE_DIR@/include/shared_mysql_connection.hpp"
+#include "@CMAKE_SOURCE_DIR@/include/http_transport.hpp"
+#include "@CMAKE_SOURCE_DIR@/include/xml_parser.hpp"
+#include "@CMAKE_SOURCE_DIR@/include/payment.hpp"
+#include "@CMAKE_SOURCE_DIR@/include/db_mysql.hpp"
+
+typedef @PG_MODULE_CLASS@ ModuleClass;
+int main(int argc, char ** argv)
+{
+	return 0;
+}
+
+struct GlobalContext
+{
+	PG::SharedMysqlConnection mysqlConnection;
+};
+
+extern "C" void *ThreadStart()
+{
+	return NULL;
+}
+
+extern "C" void ThreadEnd(void *thread_init)
+{
+	return;
+}
+
+extern "C" void *Load(CPaySys *paysys)
+{
+	GlobalContext * globalContext = new GlobalContext();
+	if (paysys!=NULL)
+	{
+		if (paysys->GetConfig()!=NULL)
+		{
+		}
+	}
+	return globalContext;
+}
+
+extern "C" void UnLoad(CPaySys *paysys, void *first_init_param)
+{
+	/* Runs when *.so UNloads */
+	delete (GlobalContext*)first_init_param;
+}
+
+extern "C" SPayResult SendData(SPay *data, void *init_param, void *first_init_param)
+{
+	GlobalContext * globalContext = (GlobalContext *)first_init_param;
+	ModuleClass * context = (ModuleClass *) init_param;
+
+	SPayResult result;
+
+	PG::Payment payment;
+	PG::HTTPTransport transport;
+	PG::XmlParser parser;
+	PG::DbMysql db(&globalContext->mysqlConnection);
+	context->performStage(0, transport, parser, payment, db);
+	return result;
+}
+
+
+extern "C" void Call(void *first_init_param)
+{
+	return;
+}
+
+extern "C" void *PayInitExt(CPaySys *paysys, COperator *operat, SPay *pay, int worker_id, void *first_init_param)
+{
+
+	const char *paysys_codename=NULL;
+	if (pay!=NULL)
+		paysys_codename=pay->paysys_codename;
+
+	ModuleClass *context= new ModuleClass();
+
+	if (paysys!=NULL)
+	{
+		/* Load values from PAY SYSTEM config */
+		if (paysys->GetConfig()!=NULL)
+		{
+		}
+	}
+	return context;
+}
+
+
+extern "C" void CleanUp(void *param)
+{
+	delete (ModuleClass *)param;
+}
+

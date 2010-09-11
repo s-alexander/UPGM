@@ -14,7 +14,7 @@
 
 #include <upgm/upgm.hpp>
 
-#include "../modules/webmoney/src/webmoney.hpp"
+#include "../modules/webmoney/include/webmoney.hpp"
 
 int main(int argc, char ** argv)
 {
