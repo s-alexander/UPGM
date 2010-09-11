@@ -2,6 +2,7 @@
 #define PG_PAYMENT
 
 #include <upgm/data_tree.hpp>
+#include <pay.h>
 
 namespace PG
 {
@@ -26,7 +27,11 @@ public:
 		}
 	}
 	DataTree generateDataTree() const;
+	Payment(const SPay & pay);
+	const std::string & errorStr() const { return _errorStr; }
+	SPayResult asSPayResult();
 private:
+	SPay _data;
 	Result _result;
 	unsigned int _sleep;
 	std::string _errorStr;

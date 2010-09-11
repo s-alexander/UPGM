@@ -7,6 +7,7 @@
 
 #include <upgm/data_tree.hpp>
 #include <upgm/db.hpp>
+#include <upgm/db_connection.hpp>
 
 namespace mysqlpp
 {
@@ -16,21 +17,11 @@ namespace mysqlpp
 namespace PG
 {
 
-class MysqlConnection
+class MysqlConnection: public DbConnection
 {
 public:
 	MysqlConnection() { ;; }
 	virtual ~MysqlConnection() throw() { ;; }
-	virtual Db::RequestResult performRequest(const std::string & request) = 0;
-
-	virtual std::string escape(const std::string & str) = 0;
-	virtual void disconnect() = 0;
-
-	virtual void connect(const std::string & host,
-	                     unsigned int port,
-	                     const std::string & dbname,
-	                     const std::string & username,
-	                     const std::string & password) = 0;
 };
 
 }

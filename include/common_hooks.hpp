@@ -20,6 +20,18 @@
 namespace PG
 {
 
+class MainConfigHook: public Hook
+{
+public:
+	MainConfigHook();
+	virtual ~MainConfigHook() throw();
+	virtual const char * name() const { return "common"; }
+
+	virtual std::string read(const Path & path);
+
+	virtual void write(const Path & path, const std::string & value);
+};
+
 class PrintHook: public Hook
 {
 public:
@@ -97,18 +109,15 @@ private:
 
 class CodeHook: public Hook
 {
-private:
-	static void populate(DataTree & tree, const Config::Section & sec);
-
 public:
-	CodeHook();
+	static void populate(DataTree & tree, const Config::Section & sec);
+	CodeHook(const Config & codes);
 	virtual ~CodeHook() throw();
 	virtual const char * name() const { return "code"; }
 
 	virtual std::string read(const Path & path);
 	virtual void write(const Path & path, const std::string & value);
 private:
-	bool _codesAreLoaded;
 	Config _codes;
 	DataTree _data;
 };

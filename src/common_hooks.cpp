@@ -7,6 +7,23 @@
 namespace PG
 {
 
+MainConfigHook::MainConfigHook() { ;; }
+MainConfigHook::~MainConfigHook() throw() { ;; }
+
+std::string MainConfigHook::read(const Path & path)
+{
+	if (path.empty())
+	{
+		throw InvalidArgumentException();
+	}
+	fprintf(stderr, "REQUEST [%s]\n", path[0].c_str());
+	return param(path[0]);
+}
+
+void MainConfigHook::write(const Path & path, const std::string & value)
+{
+}
+
 PrintHook::PrintHook() { ;; }
 PrintHook::~PrintHook() throw() { ;; }
 
@@ -163,6 +180,7 @@ std::string PaymentHook::read(const Path & path)
 	{
 		if (!_dataParsed)
 		{
+			fprintf(stderr, "data.data = [%s]\n", _data("data").c_str());
 			_payData = arrayFromStringWithSeparators(_data("data"), param("data_separator"));
 			_dataParsed = true;
 		}
@@ -206,7 +224,7 @@ void CodeHook::populate(DataTree & tree, const Config::Section & sec)
 	}
 }
 
-CodeHook::CodeHook():_codesAreLoaded(false) { ;; }
+CodeHook::CodeHook(const Config & codes):_codes(codes) { ;; }
 CodeHook::~CodeHook() throw() { ;; }
 
 std::string CodeHook::read(const Path & path) {
@@ -215,12 +233,6 @@ std::string CodeHook::read(const Path & path) {
 
 void CodeHook::write(const Path & path, const std::string & value)
 {
-	if (!_codesAreLoaded)
-	{
-		_codes.parseFile(param("file"));
-		_codesAreLoaded = true;
-	}
-
 	if (path.empty())
 	{
 		try {

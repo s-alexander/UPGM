@@ -17,12 +17,6 @@ HTTPTransport::~HTTPTransport() throw()
 
 void HTTPTransport::operator<<(const std::string & data)
 {
-//	curl.SetClientCertificate(point.cert, point.password);
-//	curl.SetServerCertificate(point.server_cert);
-
-//	curl.SetHeader("SOAPAction: http://usmp.com.ua/" + SOAPAction);
-//	curl.SetHeader("Content-Type: text/xml");
-
 	const std::string url = _config("url");
 	const int port = atoi(_config("port").c_str());
 	int timeout = 30;

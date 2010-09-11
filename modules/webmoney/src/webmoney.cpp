@@ -34,6 +34,7 @@ class WebMoneySignatureHook: public Hook
 		bool key64 (true);
 		sign.Key64Flag = key64;
 
+		fprintf(stderr, "*** SIGN [%s] ***\n", toSignCopy.c_str());
 		//if( key64 == TRUE ) {
 			sign.SetKeyFromCL( true, _keydata.data() );
 		//}

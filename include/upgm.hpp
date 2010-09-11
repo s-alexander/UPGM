@@ -19,6 +19,7 @@ namespace PG
 class RequestTemplate;
 class Payment;
 class Hook;
+class DbConnection;
 
 class NotAVariableException: std::runtime_error
 {
@@ -67,17 +68,18 @@ public:
 	typedef std::auto_ptr<Hook> HookPtr;
 	UPGM();
 	virtual ~UPGM() throw();
-	void     performStage(int stage,
-	                      Transport & transport,
-	                      Parser & parser,
-	                      Payment & payment,
-	                      Db & db);
+	void performStage(DbConnection * dbConnection, Payment & payment);
 
 	void setScheme(const Config & requestScheme);
+	void setConfig(const Config & config);
+	void setCodes(const Config & codes);
 protected:
 	void registerHook(HookPtr hook);
 	virtual void registerUserHooks(Transport & transport, Parser & parser, Payment & payment) { ;; }
 private:
+	virtual std::auto_ptr<Transport> getTransport(const std::string & name);
+	virtual std::auto_ptr<Parser> getParser(const std::string & name);
+	virtual std::auto_ptr<Db> getDb(const std::string & name, DbConnection * dbConnection);
 
 	std::string evaluateConfigValue(const std::string & value);
 	void evaluateConfigParam(const std::string & param, const std::string & value);
@@ -87,6 +89,8 @@ private:
 	Hooks _hooks;
 
 	Config   _scheme;
+	Config   _config;
+	Config   _codes;
 	PaymentSequence _sequence;
 };
 

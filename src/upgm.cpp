@@ -3,6 +3,10 @@
 #include <upgm/request_template.hpp>
 #include <upgm/common_hooks.hpp>
 #include <upgm/upgm.hpp>
+#include <upgm/http_transport.hpp>
+#include <upgm/db_mysql.hpp>
+#include <upgm/xml_parser.hpp>
+#include <upgm/mysql_connection.hpp>
 
 #include <fstream>
 #include <sstream>
@@ -30,7 +34,7 @@ void UPGM::registerHook(HookPtr  hook)
 	const char * hookName = hook->name();
 	try
 	{
-		const Config::Section & section = _scheme.section(hookName);
+		const Config::Section & section = _config.section(hookName);
 		hook->configure(section);
 	}
 	catch (...) { /* unconfigured*/ }
@@ -110,25 +114,29 @@ void UPGM::evalParams(const std::string & sectionName)
 	}
 }
 
-void UPGM::performStage(int stage,
-                        Transport & transport,
-                        Parser & parser,
-                        Payment & payment,
-                        Db & db)
+void UPGM::performStage(DbConnection * dbConnection,
+                        Payment & payment)
 {
 	try
 	{
-		registerHook(HookPtr(new StageHook(&_sequence)));
-		registerHook(HookPtr(new PrintHook()));
-		registerHook(HookPtr(new CodeHook()));
+		DataTree mainConfig;
+		CodeHook::populate( mainConfig, _config.section("main") );
+		std::auto_ptr<Transport> transport = this->getTransport( mainConfig("transport") );
+		std::auto_ptr<Parser> parser = this->getParser( mainConfig("parser") );
+		std::auto_ptr<Db> db = this->getDb( mainConfig("db"), dbConnection );
 
-		registerHook(HookPtr(new TransportHook(&transport)));
-		registerHook(HookPtr(new ParserHook(&parser)));
-		registerHook(HookPtr(new RequestHook()));
-		registerHook(HookPtr(new PaymentHook(&payment)));
-		registerHook(HookPtr(new DbHook(&db)));
+		registerHook( HookPtr( new MainConfigHook() ) );
+		registerHook( HookPtr( new StageHook(&_sequence) ) );
+		registerHook( HookPtr( new PrintHook() ) );
+		registerHook( HookPtr( new CodeHook(_codes) ) );
 
-		registerUserHooks(transport, parser, payment);
+		registerHook( HookPtr( new TransportHook( transport.get() ) ) );
+		registerHook( HookPtr( new ParserHook( parser.get() ) ) );
+		registerHook( HookPtr( new RequestHook () ) );
+		registerHook( HookPtr( new PaymentHook( &payment ) ) );
+		registerHook( HookPtr( new DbHook( db.get() ) ) );
+
+		registerUserHooks(*(transport.get()), *(parser.get()), payment);
 
 		do
 		{
@@ -154,6 +162,43 @@ void UPGM::performStage(int stage,
 void UPGM::setScheme(const Config & requestScheme)
 {
 	_scheme = requestScheme;
+}
+
+void UPGM::setConfig(const Config & config)
+{
+	_config = config;
+}
+
+void UPGM::setCodes(const Config & codes)
+{
+	_codes = codes;
+}
+
+std::auto_ptr<Transport> UPGM::getTransport(const std::string & name)
+{
+	if (name == "http")
+	{
+		return std::auto_ptr<Transport>(new PG::HTTPTransport());
+	}
+	throw std::runtime_error("Unsupported transport type - " + name);
+}
+
+std::auto_ptr<Parser> UPGM::getParser(const std::string & name)
+{
+	if (name == "xml")
+	{
+		return std::auto_ptr<Parser>(new PG::XmlParser());
+	}
+	throw std::runtime_error("Unsupported parser type - " + name);
+}
+
+std::auto_ptr<Db> UPGM::getDb(const std::string & name, DbConnection * dbConnection)
+{
+	if (name == "mysql")
+	{
+		return std::auto_ptr<Db>(new PG::DbMysql(dynamic_cast<MysqlConnection*>(dbConnection)));
+	}
+	throw std::runtime_error("Unsupported db type - " + name);
 }
 
 }

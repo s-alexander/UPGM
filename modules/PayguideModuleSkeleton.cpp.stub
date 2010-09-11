@@ -18,6 +18,14 @@ struct GlobalContext
 	PG::SharedMysqlConnection mysqlConnection;
 };
 
+struct Context
+{
+	ModuleClass module;
+	std::string scheme;
+	std::string config;
+	std::string codes;
+};
+
 extern "C" void *ThreadStart()
 {
 	return NULL;
@@ -49,16 +57,27 @@ extern "C" void UnLoad(CPaySys *paysys, void *first_init_param)
 extern "C" SPayResult SendData(SPay *data, void *init_param, void *first_init_param)
 {
 	GlobalContext * globalContext = (GlobalContext *)first_init_param;
-	ModuleClass * context = (ModuleClass *) init_param;
+	Context * context = (Context *) init_param;
 
-	SPayResult result;
+	PG::Payment payment(*data);
 
-	PG::Payment payment;
-	PG::HTTPTransport transport;
-	PG::XmlParser parser;
-	PG::DbMysql db(&globalContext->mysqlConnection);
-	context->performStage(0, transport, parser, payment, db);
-	return result;
+	PG::Config scheme;
+	scheme.parseFile(context->scheme.c_str());
+
+	PG::Config config;
+	config.parseFile(context->config.c_str());
+
+	PG::Config codes;
+	codes.parseFile(context->codes.c_str());
+
+	ModuleClass & module = context->module;
+	module.setScheme(scheme);
+	module.setCodes(codes);
+	module.setConfig(config);
+
+	module.performStage(&globalContext->mysqlConnection, payment);
+
+	return payment.asSPayResult();
 }
 
 
@@ -74,13 +93,21 @@ extern "C" void *PayInitExt(CPaySys *paysys, COperator *operat, SPay *pay, int w
 	if (pay!=NULL)
 		paysys_codename=pay->paysys_codename;
 
-	ModuleClass *context= new ModuleClass();
+	Context *context= new Context();
 
 	if (paysys!=NULL)
 	{
 		/* Load values from PAY SYSTEM config */
 		if (paysys->GetConfig()!=NULL)
 		{
+			if (paysys->GetConfig()->GetValue("scheme", paysys_codename)!=NULL)
+				context->scheme=paysys->GetConfig()->GetValue("scheme", paysys_codename);
+
+			if (paysys->GetConfig()->GetValue("config", paysys_codename)!=NULL)
+				context->config=paysys->GetConfig()->GetValue("config", paysys_codename);
+
+			if (paysys->GetConfig()->GetValue("codes", paysys_codename)!=NULL)
+				context->codes=paysys->GetConfig()->GetValue("codes", paysys_codename);
 		}
 	}
 	return context;
@@ -89,6 +116,6 @@ extern "C" void *PayInitExt(CPaySys *paysys, COperator *operat, SPay *pay, int w
 
 extern "C" void CleanUp(void *param)
 {
-	delete (ModuleClass *)param;
+	delete (Context *)param;
 }
 
