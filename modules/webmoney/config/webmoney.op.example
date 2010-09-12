@@ -1,0 +1,5 @@
+operator_id=1
+paysys_1=WebMoney
+
+[libpg_webmoney.so]
+[end]

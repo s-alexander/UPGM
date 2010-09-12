@@ -7,6 +7,19 @@
 namespace PG
 {
 
+VarHook::VarHook() { ;; }
+VarHook::~VarHook() throw() { ;; }
+
+std::string VarHook::read(const Path & path)
+{
+	return _data(path);
+}
+
+void VarHook::write(const Path & path, const std::string & value)
+{
+	_data.set(path, value);
+}
+
 MainConfigHook::MainConfigHook() { ;; }
 MainConfigHook::~MainConfigHook() throw() { ;; }
 
@@ -16,7 +29,7 @@ std::string MainConfigHook::read(const Path & path)
 	{
 		throw InvalidArgumentException();
 	}
-	fprintf(stderr, "REQUEST [%s]\n", path[0].c_str());
+//	fprintf(stderr, "REQUEST [%s]\n", path[0].c_str());
 	return param(path[0]);
 }
 
@@ -46,7 +59,7 @@ DbHook::~DbHook() throw() { ;; }
 std::string DbHook::read(const Path & path) {
 	if (path.size() == 2 && path[0] == "field") {
 		const std::string & name = path[1];
-		fprintf(stderr, "field %s is [%s]\n", name.c_str(), _data.at(0)[name].c_str());
+//		fprintf(stderr, "field %s is [%s]\n", name.c_str(), _data.at(0)[name].c_str());
 		return _data.at(0)[name];
 	}
 	else if (path.size() == 1 && path[0] == "sql") {
@@ -180,7 +193,7 @@ std::string PaymentHook::read(const Path & path)
 	{
 		if (!_dataParsed)
 		{
-			fprintf(stderr, "data.data = [%s]\n", _data("data").c_str());
+//			fprintf(stderr, "data.data = [%s]\n", _data("data").c_str());
 			_payData = arrayFromStringWithSeparators(_data("data"), param("data_separator"));
 			_dataParsed = true;
 		}
@@ -190,7 +203,7 @@ std::string PaymentHook::read(const Path & path)
 }
 void PaymentHook::write(const Path & path, const std::string & value)
 {
-	fprintf(stderr, "value = %s path[0]=%s\n",value.c_str(), path[0].c_str());
+//	fprintf(stderr, "value = %s path[0]=%s\n",value.c_str(), path[0].c_str());
 	if (path.size() == 1)
 	{
 		if (path[0] == "result")
@@ -237,7 +250,7 @@ void CodeHook::write(const Path & path, const std::string & value)
 	{
 		try {
 			const std::string & code = value;
-			fprintf(stderr, "code = %s\n", code.c_str());
+//			fprintf(stderr, "code = %s\n", code.c_str());
 
 			DataTree codeData;
 			try {

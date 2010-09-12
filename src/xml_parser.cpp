@@ -21,7 +21,7 @@ static DataTree populateDataFrom(TiXmlElement * element)
 	TiXmlAttribute * attr = element->FirstAttribute();
 	while( attr )
 	{
-		fprintf(stderr, "set %s = %s\n", attr->Name(), attr->Value());
+//		fprintf(stderr, "set %s = %s\n", attr->Name(), attr->Value());
 		childData.set( attr->Name(), attr->Value() );
 		attr = attr->Next();
 	}
@@ -30,7 +30,7 @@ static DataTree populateDataFrom(TiXmlElement * element)
 	TiXmlElement * subElement = element->FirstChildElement();
 	while( subElement )
 	{
-		fprintf(stderr, "got subelement %s\n",subElement->Value());
+//		fprintf(stderr, "got subelement %s\n",subElement->Value());
 		childData.set(subElement->Value(), populateDataFrom(subElement));
 		subElement = subElement->NextSiblingElement();
 	}

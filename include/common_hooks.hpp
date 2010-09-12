@@ -20,6 +20,20 @@
 namespace PG
 {
 
+class VarHook: public Hook
+{
+public:
+	VarHook();
+	virtual ~VarHook() throw();
+	virtual const char * name() const { return "var"; }
+
+	virtual std::string read(const Path & path);
+
+	virtual void write(const Path & path, const std::string & value);
+private:
+	DataTree _data;
+};
+
 class MainConfigHook: public Hook
 {
 public:

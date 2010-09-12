@@ -3,6 +3,11 @@ db=mysql
 transport=http
 parser=xml
 
+[common]
+wm_login=318517290795
+wm_keyfile=/home/alex/proj/UPGM/modules/webmoney/src/wmsigner/318517290795.kwm
+wm_password=111
+testmode=1
 
 [parser]
 

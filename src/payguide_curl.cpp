@@ -1,4 +1,5 @@
 #include <upgm/payguide_curl.hpp>
+#include <stdexcept>
 
 
 Curl::Curl(): curl_(NULL), slist(NULL)
@@ -116,7 +117,7 @@ bool Curl::SendRequest(const std::string & url,
 		}
 		break;
 	}
-	fprintf(stderr, "curl %p perform %s\n", curl_, fullUrl.c_str());
+//	fprintf(stderr, "curl %p perform %s\n", curl_, fullUrl.c_str());
 
 	curl_easy_setopt(curl_, CURLOPT_URL, fullUrl.c_str());
 
@@ -133,7 +134,8 @@ bool Curl::SendRequest(const std::string & url,
 		return true;
 	}
 	else {
-		fprintf(stderr, "empty data\n");
+//		fprintf(stderr, "empty data\n");
+		throw std::runtime_error("Network error (empty response)");
 	}
 
 	return false;

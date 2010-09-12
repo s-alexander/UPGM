@@ -125,6 +125,7 @@ void UPGM::performStage(DbConnection * dbConnection,
 		std::auto_ptr<Parser> parser = this->getParser( mainConfig("parser") );
 		std::auto_ptr<Db> db = this->getDb( mainConfig("db"), dbConnection );
 
+		registerHook( HookPtr( new VarHook() ) );
 		registerHook( HookPtr( new MainConfigHook() ) );
 		registerHook( HookPtr( new StageHook(&_sequence) ) );
 		registerHook( HookPtr( new PrintHook() ) );

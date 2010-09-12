@@ -1,0 +1,5 @@
+[WebMoney]
+codes=/etc/upgm/webmoney/codes.cfg
+scheme=/etc/upgm/webmoney/scheme.cfg
+config=/etc/upgm/webmoney/config.cfg
+[end]
