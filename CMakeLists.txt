@@ -14,11 +14,11 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_REENTRANT -lpthread -Wall -fPIC")
 ADD_SUBDIRECTORY(xml)
 
 IF (NOT PAYGUIDE_SRC)
-	MESSAGE(FATAL_ERROR "PAUGUIDE_SRC not defined. Use -DPAUGUIDE_SRC=...")
+	MESSAGE(FATAL_ERROR "PAYGUIDE_SRC not defined. Use -DPAYGUIDE_SRC=...")
 ENDIF(NOT PAYGUIDE_SRC)
 
 IF (NOT EXISTS ${PAYGUIDE_SRC}/src/pay.h)
-	MESSAGE(FATAL_ERROR "Looks like payguide path is wrong (Can't read ${PAYGUIDE_SRC}/src/pay.h) Check PAUGUIDE_SRC option value")
+	MESSAGE(FATAL_ERROR "Looks like payguide path is wrong (Can't read ${PAYGUIDE_SRC}/src/pay.h) Check PAYGUIDE_SRC option value")
 ENDIF(NOT EXISTS ${PAYGUIDE_SRC}/src/pay.h)
 
 INCLUDE_DIRECTORIES(AFTER
