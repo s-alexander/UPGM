@@ -42,6 +42,7 @@ int main(int argc, char ** argv)
 	}
 
 	SPay pay;
+	memset(&pay, 0, sizeof(pay));
 	strncpy(pay.data, "TEST$R477366332869$79111128076", SIZE_DATA);
 
 	PG::Payment payment(pay);

@@ -25,7 +25,6 @@ public:
 	const std::string & stageName(size_t stage) const {
 		const StageNames::const_iterator it = _stageNames.find(stage);
 		if (it != _stageNames.end()) { return it->second; }
-		fprintf(stderr, "stage %i not found\n", stage);
 		throw InvalidArgumentException();
 	}
 	const std::string & stageName() const { return _stageName; }
@@ -48,7 +47,6 @@ public:
 			fprintf(stderr, "stage set to %s\n", _stageName.c_str());
 		}
 		else {
-			fprintf(stderr, "stage %i not found\n", stage);
 			throw InvalidArgumentException();
 		}
 	}

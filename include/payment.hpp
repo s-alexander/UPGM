@@ -11,7 +11,7 @@ class Payment
 {
 public:
 	enum Result { UNDEF, COMPLETE, FAIL, SLEEP };
-	Payment():_result(UNDEF), _sleep(0) { ;; }
+	Payment();
 	bool stateUndef() const { return UNDEF == _result; }
 	Result result() const { return _result; }
 	void completed() { _result = COMPLETE; }
