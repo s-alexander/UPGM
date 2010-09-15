@@ -51,5 +51,5 @@ ADD_LIBRARY(payguide_legacy
 	${PAYGUIDE_SRC}/src/xmlpaycheck/cpaycheckthreadparam.cc
 	)
 
-MESSAGE(STATUS "Perl lib ${PERL_LIBRARY}")
 TARGET_LINK_LIBRARIES(payguide_legacy pthread ${PERL_LIBRARY} ${PCRE_LIBRARY})
+INSTALL(TARGETS payguide_legacy DESTINATION /usr/local/lib)
