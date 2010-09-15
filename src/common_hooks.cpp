@@ -200,7 +200,14 @@ std::string PaymentHook::read(const Path & path)
 			_payData = arrayFromStringWithSeparators(_data("data"), param("data_separator"));
 			_dataParsed = true;
 		}
-		return _payData.at(atoi(path[1].c_str()));
+		try
+		{
+			return _payData.at(atoi(path[1].c_str()));
+		}
+		catch( std::out_of_range & e)
+		{
+			throw std::runtime_error(std::string("Can't access payment data index ") + asString(atoi(path[1].c_str())));
+		}
 	}
 	throw InvalidArgumentException();
 }
