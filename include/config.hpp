@@ -43,8 +43,8 @@ private:
 
 	Section _root;
 	CfgData _data;
-	size_t _blockStart;
-	size_t _blockEnd;
+	long long _blockStart;
+	long long _blockEnd;
 	std::string _section;
 	std::string _param;
 	std::string _value;

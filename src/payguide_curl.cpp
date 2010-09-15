@@ -117,8 +117,6 @@ bool Curl::SendRequest(const std::string & url,
 		}
 		break;
 	}
-	fprintf(stderr, "curl %p perform %s\n", curl_, fullUrl.c_str());
-
 	curl_easy_setopt(curl_, CURLOPT_URL, fullUrl.c_str());
 
 

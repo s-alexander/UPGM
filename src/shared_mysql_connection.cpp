@@ -91,10 +91,21 @@ void SharedMysqlConnection::connect(const std::string & host, unsigned int port,
 	{
 		_connection = std::auto_ptr<mysqlpp::Connection>(new mysqlpp::Connection());
 	}
-
-	if (_connection->ping() == false)
+	for (;;)
 	{
-		_connection->connect(dbname.c_str(), host.c_str(), username.c_str(), password.c_str(), port);
+		try
+		{
+			if (_connection->ping() == false)
+			{
+				_connection->connect(dbname.c_str(), host.c_str(), username.c_str(), password.c_str(), port);
+			}
+			return;
+		}
+		catch ( mysqlpp::ConnectionFailed & e)
+		{
+			fprintf(stderr, "Connection failed. Try again in 1 sec...\n");
+			sleep(1);
+		}
 	}
 }
 

@@ -2,10 +2,17 @@
 #define PG_DB
 
 #include <string>
+#include <stdexcept>
 #include <upgm/data_tree.hpp>
 
 namespace PG
 {
+
+class DbException: public std::runtime_error
+{
+public:
+	DbException(const std::string & what): std::runtime_error(what) { ;; }
+};
 
 class Db
 {

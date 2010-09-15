@@ -1,3 +1,4 @@
+#include <upgm/as_string.hpp>
 #include <upgm/common_hooks.hpp>
 #include <stdexcept>
 #include <algorithm>
@@ -264,7 +265,11 @@ void CodeHook::write(const Path & path, const std::string & value)
 
 			_data = codeData;
 		}
-		catch (const Config::NoSuchValue & e) { fprintf(stderr, "code undef (%s)\n", e.what()); }
+		catch (const Config::NoSuchValue & e) {
+			throw std::runtime_error(std::string("Unknow error code - ") +
+			                         asString(atoi(value.c_str())) +
+			                         "; Define it in codes.cfg");
+		}
 	}
 	else { throw InvalidArgumentException(); }
 }
