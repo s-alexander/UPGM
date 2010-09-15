@@ -48,6 +48,7 @@ request.5=$pay.data.2
 
 print=$request
 
+transport.config.url=$common.wm_url_check
 transport.write=$request
 
 # Debug output
@@ -63,11 +64,10 @@ wm_signature.keyfile=$common.wm_keyfile
 wm_signature.login=$common.wm_login
 wm_signature.password=$common.wm_password
 
-wm_signature.append_data=$common.wm_login
+wm_signature.append_data=$var.wm_session
 wm_signature.append_data=$pay.summ
-wm_signature.append_data=$pay.data.2
-wm_signature.append_data=$pay.data.1
-wm_signature.append_data=$pay.data.0
+wm_signature.append_data=$pay.bill_num
+wm_signature.append_data=$var.wm_kiosk
 
 request="<w3s.request>
 	<wmid>$(1)</wmid>
@@ -103,6 +103,7 @@ request.13=$pay.data.2
 
 print=$request
 
+transport.config.url=$common.wm_url_pay
 transport.write=$request
 
 # Debug output

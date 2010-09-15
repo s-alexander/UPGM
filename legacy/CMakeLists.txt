@@ -6,7 +6,7 @@ INCLUDE_DIRECTORIES(AFTER
 	)
 FIND_PACKAGE ( Perl )
 FIND_PACKAGE ( PerlLibs )
-find_library(PCRE_LIBRARY pcre)
+FIND_LIBRARY(PCRE_LIBRARY pcre)
 
 
 ADD_LIBRARY(payguide_legacy

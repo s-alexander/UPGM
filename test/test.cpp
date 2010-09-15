@@ -18,6 +18,8 @@
 
 int main(int argc, char ** argv)
 {
+	try
+	{
 	PG::WebMoney upgm;
 
 	{
@@ -42,8 +44,10 @@ int main(int argc, char ** argv)
 	}
 
 	SPay pay;
-	memset(&pay, 0, sizeof(pay));
-	strncpy(pay.data, "TEST$R477366332869$79111128076", SIZE_DATA);
+	strncpy(pay.data, "TESTER$R477366332869$79111128076$000000$19700101", SIZE_DATA);
+	strncpy(pay.bill_num, "1234567890", SIZE_BILL_NUM);
+	strncpy(pay.stamp, "2010-09-16 00:19:12", SIZE_STAMP);
+	pay.summ=10.0;
 
 	PG::Payment payment(pay);
 
@@ -53,6 +57,15 @@ int main(int argc, char ** argv)
 	//TEST::TestTransport transport(answers);
 	PG::SharedMysqlConnection mysqlConnection;
 	upgm.performStage(&mysqlConnection, payment);
+	}
+	catch (std::exception & e)
+	{
+		fprintf(stderr, "Error: %s\n", e.what());
+	}
+	catch (...)
+	{
+		fprintf(stderr, "Unknown error occured\n");
+	}
 
-	return 0;
+	exit(0);
 }

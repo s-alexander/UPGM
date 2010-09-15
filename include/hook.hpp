@@ -28,6 +28,10 @@ public:
 protected:
 	typedef std::map<std::string, std::string> Params;
 	const Params & params() const { return _params; }
+	void setParam(const std::string & name, const std::string & value)
+	{
+		_params[ name ] = value;
+	}
 	const std::string & param(const std::string & name) const {
 		Params::const_iterator it = _params.find(name);
 		if (it != _params.end()) {

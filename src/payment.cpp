@@ -60,7 +60,6 @@ DataTree Payment::generateDataTree() const
 }
 
 Payment::Payment():_result(UNDEF), _sleep(0) {
-	memset(&_data, 0, sizeof(_data));
 	_data.paysys_codename = 0;
 }
 

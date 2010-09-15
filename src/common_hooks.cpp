@@ -109,6 +109,8 @@ std::string TransportHook::read(const Path & path) {
 void TransportHook::write(const Path & path, const std::string & value) {
 	if (path.empty()) {
 		throw InvalidArgumentException();
+	} else if (path.size() == 2 && path[0] == "config") {
+		setParam(path[1], value);
 	} else if (path.size() == 1 && path[0] == "write") {
 		Params::const_iterator it  = params().begin();
 		const Params::const_iterator end  = params().end();

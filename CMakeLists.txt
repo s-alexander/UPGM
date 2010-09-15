@@ -9,7 +9,7 @@ ENDIF (NOT CMAKE_BUILD_TYPE)
 
 
 SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_REENTRANT -lpthread -Wall -fPIC")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_REENTRANT -lpthread -Wall -fPIC -pthread")
 
 ADD_SUBDIRECTORY(xml)
 
@@ -51,7 +51,7 @@ ADD_LIBRARY (upgm
 	src/shared_mysql_connection.cpp
 	)
 
-TARGET_LINK_LIBRARIES(upgm tinyxml ${CURL_LIBRARY} ${MYSQLPP_LIBRARY} payguide_legacy)
+TARGET_LINK_LIBRARIES(upgm tinyxml ${CURL_LIBRARY} ${MYSQLPP_LIBRARY} payguide_legacy pthread)
 INSTALL(TARGETS upgm DESTINATION /usr/local/lib)
 
 ADD_SUBDIRECTORY(modules)
@@ -60,5 +60,5 @@ ADD_EXECUTABLE (test
 	test/test_transport.cpp
 	test/test.cpp
 	)
-TARGET_LINK_LIBRARIES(test webmoney payguide_legacy)
+TARGET_LINK_LIBRARIES(test webmoney payguide_legacy pthread)
 
