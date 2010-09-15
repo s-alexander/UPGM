@@ -13,18 +13,24 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_REENTRANT -lpthread -Wall -fPIC")
 
 ADD_SUBDIRECTORY(xml)
 
-IF (NOT PAYGUIDE_SRC)
-	MESSAGE(FATAL_ERROR "PAYGUIDE_SRC not defined. Use -DPAYGUIDE_SRC=...")
-ENDIF(NOT PAYGUIDE_SRC)
+
+SET(PAYGUIDE_SRC "${CMAKE_CURRENT_SOURCE_DIR}/legacy/payguide" CACHE PATH "Legacy payguide source")
 
 IF (NOT EXISTS ${PAYGUIDE_SRC}/src/pay.h)
 	MESSAGE(FATAL_ERROR "Looks like payguide path is wrong (Can't read ${PAYGUIDE_SRC}/src/pay.h) Check PAYGUIDE_SRC option value")
 ENDIF(NOT EXISTS ${PAYGUIDE_SRC}/src/pay.h)
 
+MESSAGE("Payguide legacy source located at ${PAYGUIDE_SRC}")
+
 INCLUDE_DIRECTORIES(AFTER
 	${CMAKE_CURRENT_SOURCE_DIR}
 	${PAYGUIDE_SRC}/src
 	"/usr/include/mysql")
+
+ADD_SUBDIRECTORY(legacy)
+
+FIND_LIBRARY(MYSQLPP_LIBRARY mysqlpp)
+FIND_LIBRARY(CURL_LIBRARY curl)
 
 ADD_LIBRARY (upgm
 	SHARED
@@ -45,7 +51,7 @@ ADD_LIBRARY (upgm
 	src/shared_mysql_connection.cpp
 	)
 
-TARGET_LINK_LIBRARIES(upgm tinyxml curl mysqlpp)
+TARGET_LINK_LIBRARIES(upgm tinyxml ${CURL_LIBRARY} ${MYSQLPP_LIBRARY} payguide_legacy)
 INSTALL(TARGETS upgm DESTINATION /usr/local/lib)
 
 ADD_SUBDIRECTORY(modules)
@@ -54,4 +60,5 @@ ADD_EXECUTABLE (test
 	test/test_transport.cpp
 	test/test.cpp
 	)
-TARGET_LINK_LIBRARIES(test webmoney)
+TARGET_LINK_LIBRARIES(test webmoney payguide_legacy)
+

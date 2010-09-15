@@ -4,7 +4,6 @@ MESSAGE("${CMAKE_CURRENT_SOURCE_DIR}")
 SET(PG_MODULE_CLASS ${classname})
 SET(SKELETON "PayguideModuleSkeleton.cpp")
 SET(MODPATH "${CMAKE_CURRENT_SOURCE_DIR}/${MODNAME}")
-MESSAGE("Configuring ${CMAKE_CURRENT_SOURCE_DIR}/${SKELETON}.stub -> ${CMAKE_CURRENT_SOURCE_DIR}/${MODNAME}/${SKELETON}")
 CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/${SKELETON}.stub" "${MODPATH}/${SKELETON}")
 ADD_SUBDIRECTORY(webmoney)
 
@@ -12,18 +11,13 @@ SET(PG_TARGET "pg_${MODNAME}")
 INCLUDE("${MODPATH}/include")
 ADD_LIBRARY (${PG_TARGET} SHARED 
 	${MODPATH}/${SKELETON}
-	${PAYGUIDE_SRC}/obj/core.o
-	${PAYGUIDE_SRC}/obj/paysys.o
-	${PAYGUIDE_SRC}/obj/sem.o
-	${PAYGUIDE_SRC}/obj/operator.o
-	${PAYGUIDE_SRC}/obj/parser.o
-	${PAYGUIDE_SRC}/obj/log.o
 	)
 
 TARGET_LINK_LIBRARIES(${PG_TARGET}
 	${MODNAME}
 	upgm
 	pthread
+	payguide_legacy
 	)
 
 
