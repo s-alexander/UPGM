@@ -13,8 +13,12 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_REENTRANT -lpthread -Wall -fPIC -pthr
 
 ADD_SUBDIRECTORY(xml)
 
-
 SET(PAYGUIDE_SRC     "${CMAKE_CURRENT_SOURCE_DIR}/legacy/payguide" CACHE PATH "Legacy payguide source")
+
+IF(PAYGUIDE_PATH)
+	SET(PAYGUIDE_INSTALL ${PAYGUIDE_PATH})
+	SET(PAYGUIDE_SRC     ${PAYGUIDE_PATH})
+ENDIF(PAYGUIDE_PATH)
 
 IF (NOT EXISTS ${PAYGUIDE_SRC}/src/pay.h)
 	MESSAGE(FATAL_ERROR "Looks like payguide path is wrong (Can't read ${PAYGUIDE_SRC}/src/pay.h) Check PAYGUIDE_SRC option value")
