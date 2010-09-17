@@ -2,6 +2,7 @@
 #include <iostream>
 #include "cconfig.h"
 #include <cstring>
+#include <cstdio>
 
 paycheck::CConfigElement::CConfigElement()
 {

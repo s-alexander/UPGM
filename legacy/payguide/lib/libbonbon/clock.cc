@@ -3,6 +3,7 @@
 
 #include <string>
 #include <iostream>
+#include <cstdio>
 
 #include "clock.h"
 #include "slockgraph.h"

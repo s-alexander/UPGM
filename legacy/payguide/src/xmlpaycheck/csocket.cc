@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <cstring>
+#include <cstdio>
 
 #include "csocket.h"
 

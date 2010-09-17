@@ -3,6 +3,7 @@
 #include <mysql++/mysql++.h>
 #include <mysql++/connection.h>
 #include <upgm/semaphore_lock.hpp>
+#include <cstdio>
 
 namespace PG
 {

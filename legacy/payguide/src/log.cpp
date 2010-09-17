@@ -1,6 +1,7 @@
 #include "log.h"
 #include <syslog.h>
 #include <semaphore.h>
+#include <cstdio>
 
 static sem_t log_lock;
 static int log_init=0;

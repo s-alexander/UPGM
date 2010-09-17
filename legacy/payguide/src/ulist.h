@@ -2,6 +2,7 @@
 #define __Ulist__
 #include "uelement.h"
 #include <stdlib.h>
+#include <cstdio>
 template<class E> class CUlist
 {
 

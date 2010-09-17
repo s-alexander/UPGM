@@ -1,4 +1,5 @@
 #include <sys/syscall.h>
+#include <cstdio>
 
 #include "cserver.h"
 #include "cpaycheckthreadparam.h"
