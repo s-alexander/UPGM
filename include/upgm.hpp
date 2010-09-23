@@ -12,6 +12,7 @@
 #include <upgm/parser.hpp>
 #include <upgm/path.hpp>
 #include <upgm/payment_sequence.hpp>
+#include <upgm/hooks_map.hpp>
 
 namespace PG
 {
@@ -85,7 +86,6 @@ private:
 	void evaluateConfigParam(const std::string & param, const std::string & value);
 	void evalParams(const std::string & sectionName);
 
-	typedef std::map<std::string, Hook *> Hooks;
 	Hooks _hooks;
 
 	Config   _scheme;

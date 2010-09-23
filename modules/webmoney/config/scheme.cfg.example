@@ -48,7 +48,7 @@ request.5=$pay.data.2
 
 print=$request
 
-transport.config.url=$common.wm_url_check
+config.transport.url=$common.wm_url_check
 transport.write=$request
 
 # Debug output
@@ -103,7 +103,7 @@ request.13=$pay.data.2
 
 print=$request
 
-transport.config.url=$common.wm_url_pay
+config.transport.url=$common.wm_url_pay
 transport.write=$request
 
 # Debug output

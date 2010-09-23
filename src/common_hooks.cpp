@@ -5,8 +5,41 @@
 #include <cstdio>
 #include <fstream>
 
+namespace 
+{
+
+void pathMustBeLesserThan(size_t size, const PG::Path & path)
+{
+	if (path.size() >= size) {
+		throw PG::InvalidArgumentException();
+	}
+}
+void pathMustBeGreaterThan(size_t size, const PG::Path & path)
+{
+	if (path.size() <= size) {
+		throw PG::InvalidArgumentException();
+	}
+}
+
+void pathMustBeEqualTo(size_t size, const PG::Path & path)
+{
+	if (path.size() != size) {
+		throw PG::InvalidArgumentException();
+	}
+}
+
+void pathMustBeEmpty(const PG::Path & path)
+{
+	if (!path.empty()) {
+		throw PG::InvalidArgumentException();
+	}
+}
+
+}
+
 namespace PG
 {
+
 
 VarHook::VarHook() { ;; }
 VarHook::~VarHook() throw() { ;; }
@@ -26,16 +59,53 @@ MainConfigHook::~MainConfigHook() throw() { ;; }
 
 std::string MainConfigHook::read(const Path & path)
 {
-	if (path.empty())
-	{
-		throw InvalidArgumentException();
-	}
+	pathMustBeEqualTo(1, path);
 //	fprintf(stderr, "REQUEST [%s]\n", path[0].c_str());
 	return param(path[0]);
 }
 
 void MainConfigHook::write(const Path & path, const std::string & value)
 {
+}
+
+ConfigHook::ConfigHook(Hooks * hooks): _hooks(hooks) { ;; }
+ConfigHook::~ConfigHook() throw() { ;; }
+
+std::string ConfigHook::read(const Path & path)
+{
+	pathMustBeEqualTo(2, path);
+
+	const std::string & hookName (path[0]);
+	Hooks::const_iterator it = _hooks->find(hookName);
+	if (it != _hooks->end())
+	{
+		Hook * hook = it->second;
+		const std::string & paramName(path[1]);
+		return hook->param(paramName);
+	}
+	else
+	{
+		throw std::runtime_error(std::string("Can't configure hook ") + hookName + ": invalid hook name");
+	}
+		
+}
+
+void ConfigHook::write(const Path & path, const std::string & value)
+{
+	pathMustBeEqualTo(2, path);
+
+	const std::string & hookName (path[0]);
+	Hooks::const_iterator it = _hooks->find(hookName);
+	if (it != _hooks->end())
+	{
+		Hook * hook = it->second;
+		const std::string & paramName(path[1]);
+		hook->setParam(paramName, value);
+	}
+	else
+	{
+		throw std::runtime_error(std::string("Can't configure hook ") + hookName + ": invalid hook name");
+	}
 }
 
 PrintHook::PrintHook() { ;; }
@@ -46,12 +116,8 @@ std::string PrintHook::read(const Path & path) {
 }
 
 void PrintHook::write(const Path & path, const std::string & value) {
-	if (path.empty()) {
-		fprintf(stderr, " * [%s]\n", value.c_str());
-	}
-	else {
-		throw InvalidArgumentException();
-	}
+	pathMustBeEmpty(path);
+	fprintf(stderr, " * [%s]\n", value.c_str());
 }
 
 DbHook::DbHook(Db * db): _db(db) { ;; }
@@ -99,20 +165,17 @@ TransportHook::TransportHook(Transport * transport): _transport(transport) { ;; 
 TransportHook::~TransportHook() throw() { ;; }
 
 std::string TransportHook::read(const Path & path) {
-	if (path.size() == 1)
-	{
-		if (path[0] == "read") {
-			return _answer;
-		}
+	pathMustBeEqualTo(1, path);
+
+	if (path[0] == "read") {
+		return _answer;
 	}
+
 	throw InvalidArgumentException();
 }
 void TransportHook::write(const Path & path, const std::string & value) {
-	if (path.empty()) {
-		throw InvalidArgumentException();
-	} else if (path.size() == 2 && path[0] == "config") {
-		setParam(path[1], value);
-	} else if (path.size() == 1 && path[0] == "write") {
+	pathMustBeEqualTo(1, path);
+	if (path[0] == "write") {
 		Params::const_iterator it  = params().begin();
 		const Params::const_iterator end  = params().end();
 		DataTree config;
@@ -139,19 +202,18 @@ ParserHook::ParserHook(Parser * parser): _parser(parser) { ;; }
 ParserHook::~ParserHook() throw() { ;; }
 
 std::string ParserHook::read(const Path & path) {
-	if (path.size() > 1)
-	{
-		if (path[0] == "get") {
-			return _data(Path(path.begin()+1, path.end()));
-		}
+	pathMustBeGreaterThan(1, path);
+
+	if (path[0] == "get") {
+		return _data(Path(path.begin()+1, path.end()));
 	}
+
 	throw InvalidArgumentException();
 }
 
 void ParserHook::write(const Path & path, const std::string & value) {
-	if (path.empty()) {
-		throw InvalidArgumentException();
-	} else if (path.size() == 1 && path[0] == "parse") {
+	pathMustBeEqualTo(1, path);
+	if (path[0] == "parse") {
 		_data = _parser->parse(value);
 	}
 	else {
@@ -214,26 +276,24 @@ std::string PaymentHook::read(const Path & path)
 void PaymentHook::write(const Path & path, const std::string & value)
 {
 //	fprintf(stderr, "value = %s path[0]=%s\n",value.c_str(), path[0].c_str());
-	if (path.size() == 1)
+	pathMustBeEqualTo(1, path);
+	if (path[0] == "result")
 	{
-		if (path[0] == "result")
-		{
-			if (value == "completed") { _pay->completed(); }
-			else if (value == "sleep") { _pay->sleep(60*5); }
-			else if (value == "failed") { _pay->failed(); }
-			else { throw InvalidArgumentException(); }
-			return;
-		}
-		else if (path[0] == "sleep")
-		{
-			_pay->sleep(atoi(value.c_str()));
-			return;
-		}
-		else if (path[0] == "error")
-		{
-			_pay->error(value);
-			return;
-		}
+		if (value == "completed") { _pay->completed(); }
+		else if (value == "sleep") { _pay->sleep(60*5); }
+		else if (value == "failed") { _pay->failed(); }
+		else { throw InvalidArgumentException(); }
+		return;
+	}
+	else if (path[0] == "sleep")
+	{
+		_pay->sleep(atoi(value.c_str()));
+		return;
+	}
+	else if (path[0] == "error")
+	{
+		_pay->error(value);
+		return;
 	}
 	throw InvalidArgumentException();
 }
@@ -256,29 +316,26 @@ std::string CodeHook::read(const Path & path) {
 
 void CodeHook::write(const Path & path, const std::string & value)
 {
-	if (path.empty())
-	{
-		try {
-			const std::string & code = value;
+	pathMustBeEmpty(path);
+	try {
+		const std::string & code = value;
 //			fprintf(stderr, "code = %s\n", code.c_str());
 
-			DataTree codeData;
-			try {
-				populate(codeData,_codes.section(code));
-			}
-			catch ( ... ) {
-				populate(codeData,_codes.section("default"));
-			}
+		DataTree codeData;
+		try {
+			populate(codeData,_codes.section(code));
+		}
+		catch ( ... ) {
+			populate(codeData,_codes.section("default"));
+		}
 
-			_data = codeData;
-		}
-		catch (const Config::NoSuchValue & e) {
-			throw std::runtime_error(std::string("Unknow error code - ") +
-			                         asString(atoi(value.c_str())) +
-			                         "; Define it in codes.cfg");
-		}
+		_data = codeData;
 	}
-	else { throw InvalidArgumentException(); }
+	catch (const Config::NoSuchValue & e) {
+		throw std::runtime_error(std::string("Unknow error code - ") +
+					 asString(atoi(value.c_str())) +
+					 "; Define it in codes.cfg");
+	}
 }
 
 RequestHook::RequestHook() { ;; }
@@ -286,21 +343,19 @@ RequestHook::~RequestHook() throw() { ;; }
 
 std::string RequestHook::read(const Path & path)
 {
-	if (path.empty())
-	{
-		return _requestTemplate.evaluate(_requestArg);
-	}
-	throw InvalidArgumentException();
+	pathMustBeEmpty(path);
+	return _requestTemplate.evaluate(_requestArg);
 }
 void RequestHook::write(const Path & path, const std::string & value)
 {
+	pathMustBeLesserThan(2, path);
 	if ( path.empty() )
 	{
 		_requestArg.clear();
 		_requestTemplate = value;
 	} else if (path.size() == 1) {
 		_requestArg[ path[0] ] = value;
-	} else { throw InvalidArgumentException(); }
+	} 
 }
 
 

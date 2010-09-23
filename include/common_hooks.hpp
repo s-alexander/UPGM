@@ -16,6 +16,7 @@
 #include <upgm/payment.hpp>
 #include <upgm/config.hpp>
 #include <upgm/request_template.hpp>
+#include <upgm/hooks_map.hpp>
 
 namespace PG
 {
@@ -44,6 +45,22 @@ public:
 	virtual std::string read(const Path & path);
 
 	virtual void write(const Path & path, const std::string & value);
+};
+
+
+
+class ConfigHook: public Hook
+{
+public:
+	ConfigHook(Hooks * hooks);
+	virtual ~ConfigHook() throw();
+	virtual const char * name() const { return "config"; }
+
+	virtual std::string read(const Path & path);
+
+	virtual void write(const Path & path, const std::string & value);
+private:
+	const Hooks * _hooks;
 };
 
 class PrintHook: public Hook

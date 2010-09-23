@@ -25,7 +25,6 @@ public:
 
 	virtual std::string read(const Path & path) = 0;
 	virtual void write(const Path & path, const std::string & value) = 0;
-protected:
 	typedef std::map<std::string, std::string> Params;
 	const Params & params() const { return _params; }
 	void setParam(const std::string & name, const std::string & value)
@@ -39,6 +38,7 @@ protected:
 		}
 		throw std::runtime_error("param " + name + " undeclared");
 	}
+protected:
 private:
 	Params _params;
 };

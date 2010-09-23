@@ -136,6 +136,7 @@ void UPGM::performStage(DbConnection * dbConnection,
 		registerHook( HookPtr( new RequestHook () ) );
 		registerHook( HookPtr( new PaymentHook( &payment ) ) );
 		registerHook( HookPtr( new DbHook( db.get() ) ) );
+		registerHook( HookPtr( new ConfigHook( &_hooks ) ) );
 
 		registerUserHooks(*(transport.get()), *(parser.get()), payment);
 
