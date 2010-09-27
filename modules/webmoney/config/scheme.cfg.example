@@ -57,6 +57,7 @@ print=$transport.read
 parser.parse=$transport.read
 
 code=$parser.get.w3s\\.response.retval.
+pay.error=$code.message
 stage=$code.act
 
 [pay]
@@ -112,6 +113,7 @@ print=$transport.read
 parser.parse=$transport.read
 
 code=$parser.get.w3s\\.response.retval.
+pay.error=$code.message
 stage=$code.act
 
 [complete]

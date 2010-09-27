@@ -27,8 +27,8 @@ DataTree Payment::generateDataTree() const
 	result.set("exists_int_checkreqs", asString(_data.exists_int_checkreqs));
 	return result;
 }
-
-Payment::Payment():_result(UNDEF), _sleep(0) {
+const unsigned int fiveMinutes = 60 * 5;
+Payment::Payment():_result(UNDEF), _sleep(fiveMinutes), _errorCode(0) {
 	_data.paysys_codename = 0;
 }
 
@@ -65,6 +65,7 @@ SPayResult Payment::asSPayResult()
 		payRes.code=RESULT_SAVE_STATE;
 		payRes.sleep = _sleep;
 	}
+
 	fprintf(stderr, "Return result [%s] - %i\n", payRes.msg, payRes.sleep);
 	return payRes;
 }

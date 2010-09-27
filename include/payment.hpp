@@ -17,6 +17,7 @@ public:
 	void completed() { _result = COMPLETE; }
 	void failed() { _result = FAIL; }
 	void sleep(unsigned int sec) { _result = SLEEP; _sleep = sec; }
+	void setErrorCode(int errorCode) { _errorCode = errorCode; }
 	void error(const std::string & errorStr) {
 		if (_errorStr.empty())
 		{
@@ -34,6 +35,7 @@ private:
 	SPay _data;
 	Result _result;
 	unsigned int _sleep;
+	int _errorCode;
 	std::string _errorStr;
 };
 

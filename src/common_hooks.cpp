@@ -5,7 +5,7 @@
 #include <cstdio>
 #include <fstream>
 
-namespace 
+namespace
 {
 
 void pathMustBeLesserThan(size_t size, const PG::Path & path)
@@ -87,7 +87,7 @@ std::string ConfigHook::read(const Path & path)
 	{
 		throw std::runtime_error(std::string("Can't configure hook ") + hookName + ": invalid hook name");
 	}
-		
+
 }
 
 void ConfigHook::write(const Path & path, const std::string & value)
@@ -327,6 +327,8 @@ void CodeHook::write(const Path & path, const std::string & value)
 		}
 		catch ( ... ) {
 			populate(codeData,_codes.section("default"));
+			const std::string messageStr(std::string("Unknown payment error (code ") + code + ")");
+			codeData.set("message", messageStr);
 		}
 
 		_data = codeData;
@@ -355,7 +357,7 @@ void RequestHook::write(const Path & path, const std::string & value)
 		_requestTemplate = value;
 	} else if (path.size() == 1) {
 		_requestArg[ path[0] ] = value;
-	} 
+	}
 }
 
 
