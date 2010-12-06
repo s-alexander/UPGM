@@ -13,7 +13,7 @@ SET(BONBON_SRC ${CMAKE_CURRENT_SOURCE_DIR}/payguide)
 ADD_LIBRARY(payguide_legacy
 	SHARED
 	${BONBON_SRC}/lib/libbonbon/bonbon.cc
-	#${BONBON_SRC}/lib/libbonbon/cjobmanager.cc
+	${BONBON_SRC}/lib/libbonbon/cjobmanager.cc
 	${BONBON_SRC}/lib/libbonbon/cthread.cc
 	${BONBON_SRC}/lib/libbonbon/clock.cc
 	${BONBON_SRC}/lib/libbonbon/cmodule.cc
@@ -21,7 +21,7 @@ ADD_LIBRARY(payguide_legacy
 	${BONBON_SRC}/lib/libbonbon/csemaphore.cc
 	${BONBON_SRC}/lib/libbonbon/cthreadjobs.cc
 	${BONBON_SRC}/lib/libbonbon/cmutex.cc
-	#${BONBON_SRC}/lib/libbonbon/cjob.cc
+	${BONBON_SRC}/lib/libbonbon/cjob.cc
 	${BONBON_SRC}/lib/libbonbon/ctparam.cc
 
 
