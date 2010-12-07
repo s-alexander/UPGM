@@ -9,6 +9,7 @@ INCLUDE_DIRECTORIES(AFTER
 	)
 FIND_LIBRARY(PCRE_LIBRARY pcre)
 SET(BONBON_SRC ${CMAKE_CURRENT_SOURCE_DIR}/payguide)
+#SET(BONBON_SRC ${PAYGUIDE_SRC})
 
 ADD_LIBRARY(payguide_legacy
 	SHARED
@@ -26,30 +27,30 @@ ADD_LIBRARY(payguide_legacy
 
 
 
-	${PAYGUIDE_SRC}/src/thrdmngr.cpp
-	${PAYGUIDE_SRC}/src/log.cpp
-	${PAYGUIDE_SRC}/src/perlm.cpp
-	${PAYGUIDE_SRC}/src/db.cpp
-	${PAYGUIDE_SRC}/src/core.cpp
-	${PAYGUIDE_SRC}/src/paycheck.cpp
-	${PAYGUIDE_SRC}/src/format.cpp
-	${PAYGUIDE_SRC}/src/ctl.cpp
-	${PAYGUIDE_SRC}/src/operator.cpp
-	${PAYGUIDE_SRC}/src/statistic.cpp
-	${PAYGUIDE_SRC}/src/paysys.cpp
-	${PAYGUIDE_SRC}/src/initsys.cpp
-	${PAYGUIDE_SRC}/src/sem.cpp
-	${PAYGUIDE_SRC}/src/parser.cpp
-	${PAYGUIDE_SRC}/src/main.cpp
-	${PAYGUIDE_SRC}/src/worker.cpp
-	${PAYGUIDE_SRC}/src/uremote_socket.cpp
+		${PAYGUIDE_SRC}/src/thrdmngr.cpp
+		${PAYGUIDE_SRC}/src/log.cpp
+		${PAYGUIDE_SRC}/src/perlm.cpp
+		${PAYGUIDE_SRC}/src/db.cpp
+		${PAYGUIDE_SRC}/src/core.cpp
+		${PAYGUIDE_SRC}/src/paycheck.cpp
+		${PAYGUIDE_SRC}/src/format.cpp
+		${PAYGUIDE_SRC}/src/ctl.cpp
+		${PAYGUIDE_SRC}/src/operator.cpp
+		${PAYGUIDE_SRC}/src/statistic.cpp
+		${PAYGUIDE_SRC}/src/paysys.cpp
+		${PAYGUIDE_SRC}/src/initsys.cpp
+		${PAYGUIDE_SRC}/src/sem.cpp
+		${PAYGUIDE_SRC}/src/parser.cpp
+		#		${PAYGUIDE_SRC}/src/main.cpp
+		${PAYGUIDE_SRC}/src/worker.cpp
+		${PAYGUIDE_SRC}/src/uremote_socket.cpp
 
-	${PAYGUIDE_SRC}/src/xmlpaycheck/cpaycheckcore.cc
-	${PAYGUIDE_SRC}/src/xmlpaycheck/cconfig.cc
-	${PAYGUIDE_SRC}/src/xmlpaycheck/cserver.cc
-	${PAYGUIDE_SRC}/src/xmlpaycheck/cpayguiderequest.cc
-	${PAYGUIDE_SRC}/src/xmlpaycheck/csocket.cc
-	${PAYGUIDE_SRC}/src/xmlpaycheck/cpaycheckthreadparam.cc
+		${PAYGUIDE_SRC}/src/xmlpaycheck/cpaycheckcore.cc
+		${PAYGUIDE_SRC}/src/xmlpaycheck/cconfig.cc
+		${PAYGUIDE_SRC}/src/xmlpaycheck/cserver.cc
+		${PAYGUIDE_SRC}/src/xmlpaycheck/cpayguiderequest.cc
+		${PAYGUIDE_SRC}/src/xmlpaycheck/csocket.cc
+		${PAYGUIDE_SRC}/src/xmlpaycheck/cpaycheckthreadparam.cc
 	)
 
 TARGET_LINK_LIBRARIES(payguide_legacy pthread ${PERL_LIBRARY} ${PCRE_LIBRARY})

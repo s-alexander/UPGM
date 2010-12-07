@@ -69,14 +69,14 @@ ADD_LIBRARY (upgm
 	src/shared_mysql_connection.cpp
 	)
 
-TARGET_LINK_LIBRARIES(upgm tinyxml ${CURL_LIBRARY} ${MYSQLPP_LIBRARY} payguide_legacy pthread)
+TARGET_LINK_LIBRARIES(upgm tinyxml ${CURL_LIBRARY} ${MYSQLPP_LIBRARY} pthread payguide_legacy)
 INSTALL(TARGETS upgm DESTINATION /usr/local/lib)
 
 ADD_SUBDIRECTORY(modules)
 
-ADD_EXECUTABLE (test
-	test/test_transport.cpp
-	test/test.cpp
-	)
-TARGET_LINK_LIBRARIES(test webmoney payguide_legacy pthread)
+#ADD_EXECUTABLE (test
+#	test/test_transport.cpp
+#	test/test.cpp
+#	)
+#TARGET_LINK_LIBRARIES(test webmoney payguide_legacy pthread)
 

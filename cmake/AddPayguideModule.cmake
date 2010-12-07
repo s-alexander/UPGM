@@ -17,7 +17,6 @@ TARGET_LINK_LIBRARIES(${PG_TARGET}
 	${MODNAME}
 	upgm
 	pthread
-	payguide_legacy
 	)
 
 
