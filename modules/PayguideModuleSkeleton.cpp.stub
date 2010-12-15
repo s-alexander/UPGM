@@ -24,6 +24,7 @@ struct Context
 	std::string scheme;
 	std::string config;
 	std::string codes;
+	std::string logpath;
 };
 
 extern "C" void *ThreadStart()
@@ -74,6 +75,7 @@ extern "C" SPayResult SendData(SPay *data, void *init_param, void *first_init_pa
 	module.setScheme(scheme);
 	module.setCodes(codes);
 	module.setConfig(config);
+	module.setLog(context->logpath);
 
 	module.performStage(&globalContext->mysqlConnection, payment);
 
@@ -108,6 +110,9 @@ extern "C" void *PayInitExt(CPaySys *paysys, COperator *operat, SPay *pay, int w
 
 			if (paysys->GetConfig()->GetValue("codes", paysys_codename)!=NULL)
 				context->codes=paysys->GetConfig()->GetValue("codes", paysys_codename);
+
+			if (paysys->GetConfig()->GetValue("log", paysys_codename)!=NULL)
+				context->logpath=paysys->GetConfig()->GetValue("log", paysys_codename);
 		}
 	}
 	return context;

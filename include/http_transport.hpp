@@ -12,12 +12,12 @@ namespace PG
 class HTTPTransport: public Transport
 {
 public:
-	HTTPTransport();
+	HTTPTransport(Log & log);
 	virtual ~HTTPTransport() throw();
 	void configure(const DataTree & config);
-	virtual void operator<<(const std::string & data);
-	virtual DataTree operator>>(std::string & buffer);
 private:
+	virtual void writeImpl(const std::string & data);
+	virtual DataTree readImpl(std::string & data);
 	Curl * _curl;
 };
 

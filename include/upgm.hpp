@@ -3,6 +3,7 @@
 
 #include <stdexcept>
 #include <string>
+#include <fstream>
 #include <memory>
 
 #include <upgm/data_tree.hpp>
@@ -13,6 +14,7 @@
 #include <upgm/path.hpp>
 #include <upgm/payment_sequence.hpp>
 #include <upgm/hooks_map.hpp>
+#include <upgm/log.hpp>
 
 namespace PG
 {
@@ -22,7 +24,7 @@ class Payment;
 class Hook;
 class DbConnection;
 
-class NotAVariableException: std::runtime_error
+class NotAVariableException: public std::runtime_error
 {
 public:
 	NotAVariableException(const std::string & varName):
@@ -36,7 +38,7 @@ private:
 	std::string _name;
 };
 
-class HookUndefException: std::runtime_error
+class HookUndefException: public std::runtime_error
 {
 public:
 	HookUndefException(const std::string & varName):
@@ -49,7 +51,7 @@ public:
 private:
 	std::string _name;
 };
-class VariableUndefException: std::runtime_error
+class VariableUndefException: public std::runtime_error
 {
 public:
 	VariableUndefException(const std::string & varName):
@@ -74,6 +76,7 @@ public:
 	void setScheme(const Config & requestScheme);
 	void setConfig(const Config & config);
 	void setCodes(const Config & codes);
+	void setLog(const std::string & path);
 protected:
 	void registerHook(HookPtr hook);
 	virtual void registerUserHooks(Transport & transport, Parser & parser, Payment & payment) { ;; }
@@ -92,6 +95,8 @@ private:
 	Config   _config;
 	Config   _codes;
 	PaymentSequence _sequence;
+	std::string _logPath;
+	Log _log;
 };
 
 }

@@ -5,7 +5,7 @@
 namespace PG
 {
 
-HTTPTransport::HTTPTransport(): _curl (0)
+HTTPTransport::HTTPTransport(Log & log):Transport(log), _curl (0)
 {
 	_curl = new Curl();
 }
@@ -15,7 +15,7 @@ HTTPTransport::~HTTPTransport() throw()
 	delete _curl;
 }
 
-void HTTPTransport::operator<<(const std::string & data)
+void HTTPTransport::writeImpl(const std::string & data)
 {
 	const std::string url = _config("url");
 	const int port = atoi(_config("port").c_str());
@@ -72,7 +72,7 @@ void HTTPTransport::operator<<(const std::string & data)
 	_curl->SendRequest(url, port, data, Curl::POST, timeout);
 }
 
-PG::DataTree HTTPTransport::operator>>(std::string & buffer)
+PG::DataTree HTTPTransport::readImpl(std::string & buffer)
 {
 	_curl->WaitAnswer();
 	buffer = _curl->Answer();

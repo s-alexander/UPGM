@@ -72,11 +72,11 @@ class WebMoneySignatureHook: public Hook
 				_toSign += value;
 			}
 			else {
-				throw InvalidArgumentException();
+				throw InvalidArgumentException("Supported operations: keyfile login password append_data");
 			}
 		}
 		else {
-			throw InvalidArgumentException();
+			throw InvalidArgumentException("path size must be equal to 1");
 		}
 	}
 private:

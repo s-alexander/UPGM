@@ -11,27 +11,27 @@ namespace
 void pathMustBeLesserThan(size_t size, const PG::Path & path)
 {
 	if (path.size() >= size) {
-		throw PG::InvalidArgumentException();
+		throw PG::InvalidArgumentException("path is too big");
 	}
 }
 void pathMustBeGreaterThan(size_t size, const PG::Path & path)
 {
 	if (path.size() <= size) {
-		throw PG::InvalidArgumentException();
+		throw PG::InvalidArgumentException("path is too short");
 	}
 }
 
 void pathMustBeEqualTo(size_t size, const PG::Path & path)
 {
 	if (path.size() != size) {
-		throw PG::InvalidArgumentException();
+		throw PG::InvalidArgumentException(std::string("path must be equal to ") + PG::asString(size));
 	}
 }
 
 void pathMustBeEmpty(const PG::Path & path)
 {
 	if (!path.empty()) {
-		throw PG::InvalidArgumentException();
+		throw PG::InvalidArgumentException("path must be empty");
 	}
 }
 
@@ -112,7 +112,7 @@ PrintHook::PrintHook() { ;; }
 PrintHook::~PrintHook() throw() { ;; }
 
 std::string PrintHook::read(const Path & path) {
-	throw InvalidArgumentException();
+	throw InvalidArgumentException("print hook invalid usage");
 }
 
 void PrintHook::write(const Path & path, const std::string & value) {
@@ -133,7 +133,7 @@ std::string DbHook::read(const Path & path) {
 		return _requestTemplate.evaluate(_requestArg);
 	}
 
-	throw InvalidArgumentException();
+	throw InvalidArgumentException("db hook invalid read");
 }
 void DbHook::write(const Path & path, const std::string & value) {
 	if (path.size() == 1 && path[0] == "execute")
@@ -152,7 +152,7 @@ void DbHook::write(const Path & path, const std::string & value) {
 		_requestArg[ path[1] ] = value;
 	}
 	else {
-		throw InvalidArgumentException();
+		throw InvalidArgumentException("db hook invalid write");
 	}
 }
 void DbHook::connect()
@@ -171,7 +171,7 @@ std::string TransportHook::read(const Path & path) {
 		return _answer;
 	}
 
-	throw InvalidArgumentException();
+	throw InvalidArgumentException("transport hook invalid read");
 }
 void TransportHook::write(const Path & path, const std::string & value) {
 	pathMustBeEqualTo(1, path);
@@ -194,7 +194,7 @@ void TransportHook::write(const Path & path, const std::string & value) {
 		//_answer = _parser->parse(answer);
 	}
 	else {
-		throw InvalidArgumentException();
+		throw InvalidArgumentException(std::string("transport hook invalid operation - ") + path[0]);
 	}
 }
 
@@ -208,7 +208,7 @@ std::string ParserHook::read(const Path & path) {
 		return _data(Path(path.begin()+1, path.end()));
 	}
 
-	throw InvalidArgumentException();
+	throw InvalidArgumentException("parser hook invalid read");
 }
 
 void ParserHook::write(const Path & path, const std::string & value) {
@@ -217,7 +217,7 @@ void ParserHook::write(const Path & path, const std::string & value) {
 		_data = _parser->parse(value);
 	}
 	else {
-		throw InvalidArgumentException();
+		throw InvalidArgumentException("parser hook invalid ");
 	}
 }
 
@@ -271,7 +271,7 @@ std::string PaymentHook::read(const Path & path)
 			throw std::runtime_error(std::string("Can't access payment data index ") + asString(atoi(path[1].c_str())));
 		}
 	}
-	throw InvalidArgumentException();
+	throw InvalidArgumentException("payment data hook invalid read");
 }
 void PaymentHook::write(const Path & path, const std::string & value)
 {
@@ -282,7 +282,7 @@ void PaymentHook::write(const Path & path, const std::string & value)
 		if (value == "completed") { _pay->completed(); }
 		else if (value == "sleep") { _pay->sleep(60*5); }
 		else if (value == "failed") { _pay->failed(); }
-		else { throw InvalidArgumentException(); }
+		else { throw InvalidArgumentException(std::string("invalid pay status - ") + value); }
 		return;
 	}
 	else if (path[0] == "sleep")
@@ -295,7 +295,7 @@ void PaymentHook::write(const Path & path, const std::string & value)
 		_pay->error(value);
 		return;
 	}
-	throw InvalidArgumentException();
+	throw InvalidArgumentException(std::string("invalid pay operation - ") + path[0]);
 }
 
 void CodeHook::populate(DataTree & tree, const Config::Section & sec)
@@ -377,7 +377,7 @@ std::string StageHook::read(const Path & path)
 	} else if (path[0] == "next") {
 		return _sequence->stageName( _sequence->currentStage() + 1 );
 	}
-	throw InvalidArgumentException();
+	throw InvalidArgumentException(std::string("invalid stage read operation - ") + path[0]);
 }
 void StageHook::write(const Path & path, const std::string & value)
 {

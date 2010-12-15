@@ -5,6 +5,7 @@
 #include <vector>
 #include <stdexcept>
 #include <cstdio>
+#include <upgm/as_string.hpp>
 
 namespace PG
 {
@@ -12,9 +13,14 @@ namespace PG
 class InvalidArgumentException: public std::runtime_error
 {
 public:
-	InvalidArgumentException(): std::runtime_error("Invalid argument") { ;; }
+	InvalidArgumentException(const std::string & str): std::runtime_error("Invalid argument (" + str + ")") { ;; }
 };
 
+class InvalidStageException: public std::runtime_error
+{
+public:
+	InvalidStageException(size_t stage): std::runtime_error("Invalid argument (stage " + asString(stage) + " not found)") { ;; }
+};
 
 class PaymentSequence
 {
@@ -25,7 +31,7 @@ public:
 	const std::string & stageName(size_t stage) const {
 		const StageNames::const_iterator it = _stageNames.find(stage);
 		if (it != _stageNames.end()) { return it->second; }
-		throw InvalidArgumentException();
+		throw InvalidStageException(stage);
 	}
 	const std::string & stageName() const { return _stageName; }
 	void addStage(size_t stage, const std::string & stageName) {
@@ -47,7 +53,7 @@ public:
 			fprintf(stderr, "stage set to %s\n", _stageName.c_str());
 		}
 		else {
-			throw InvalidArgumentException();
+			throw InvalidStageException(stage);
 		}
 	}
 private:

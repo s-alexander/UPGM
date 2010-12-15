@@ -119,6 +119,8 @@ void UPGM::performStage(DbConnection * dbConnection,
 {
 	try
 	{
+		_log.setup(_logPath, payment.generateDataTree()("id"));
+
 		DataTree mainConfig;
 		CodeHook::populate( mainConfig, _config.section("main") );
 		std::auto_ptr<Transport> transport = this->getTransport( mainConfig("transport") );
@@ -161,6 +163,10 @@ void UPGM::performStage(DbConnection * dbConnection,
 
 }
 
+void UPGM::setLog(const std::string & path) {
+	_logPath = path;
+}
+
 void UPGM::setScheme(const Config & requestScheme)
 {
 	_scheme = requestScheme;
@@ -180,7 +186,7 @@ std::auto_ptr<Transport> UPGM::getTransport(const std::string & name)
 {
 	if (name == "http")
 	{
-		return std::auto_ptr<Transport>(new PG::HTTPTransport());
+		return std::auto_ptr<Transport>(new PG::HTTPTransport( _log ));
 	}
 	throw std::runtime_error("Unsupported transport type - " + name);
 }

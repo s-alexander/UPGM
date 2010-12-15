@@ -53,6 +53,7 @@ FIND_LIBRARY(CURL_LIBRARY curl)
 ADD_LIBRARY (upgm
 	SHARED
 	src/upgm.cpp
+	src/log.cpp
 	src/common_hooks.cpp
 	src/config.cpp
 	src/data_tree.cpp
