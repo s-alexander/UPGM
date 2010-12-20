@@ -3,7 +3,7 @@
 namespace PG
 {
 
-Log::Log()
+Log::Log():_log(0)
 {
 }
 
