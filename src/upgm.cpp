@@ -119,8 +119,9 @@ void UPGM::performStage(DbConnection * dbConnection,
 {
 	try
 	{
-		_log.setup(_logPath, payment.generateDataTree()("id"));
-
+		const std::string payid(payment.generateDataTree()("id"));
+		_log.setup(_logPath, payid);
+		_log << "*** Got payment " << payid << "\n";
 		DataTree mainConfig;
 		CodeHook::populate( mainConfig, _config.section("main") );
 		std::auto_ptr<Transport> transport = this->getTransport( mainConfig("transport") );
@@ -144,12 +145,14 @@ void UPGM::performStage(DbConnection * dbConnection,
 
 		do
 		{
+			_log << "Performing stage " << _sequence.stageName() << "\n";
 			evalParams(_sequence.stageName());
 		}
 		while ( payment.stateUndef() );
 	}
 	catch (std::exception & e)
 	{
+		_log << "*** Error: " << e.what() << "\n";
 		const char * errStr = e.what();
 		fprintf(stderr, "Error %s\n", errStr);
 		payment.error(errStr ? errStr : "(null)");

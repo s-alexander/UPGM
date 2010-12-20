@@ -14,7 +14,18 @@ public:
 	Log();
 	virtual ~Log() throw();
 	void setup(const std::string & path, const std::string & payment);
-	Log & operator<<(const std::string & data) throw();
+
+	template <typename T>
+	Log & operator<<(T data) throw() {
+		try {
+			if ( _log && _log->good() ) {
+				(*_log) << data;
+				_log->flush();
+			}
+		} catch (...) { ;; }
+		return *this;
+	}
+
 private:
 	std::ofstream * _log;
 };
