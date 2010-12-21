@@ -5,14 +5,15 @@ stage.id.2=pay
 stage.id.3=complete
 stage.id.4=fatal
 
-db.sql="select stage,session,kiosk, DATE_FORMAT(\"$(1)\",\"%Y%m%d %H:%i:%s\") AS wm_date from webmoney_pays_ext where pay_id=$(2) union select 0,0,0,NULL"
+db.sql="select stage,session,kiosk, DATE_FORMAT(\"$(1)\",\"%Y%m%d %H:%i:%s\") AS local_date, wmdate from webmoney_pays_ext where pay_id=$(2) union select 0,0,0,NULL,NULL"
 db.sql.1=$pay.stamp
 db.sql.2=$pay.id
 db.execute=$db.sql
 stage.id=$db.field.stage
 var.wm_session=$db.field.session
-var.wm_date=$db.field.wm_date
+var.local_date=$db.field.local_date
 var.wm_kiosk=$db.field.kiosk
+var.wmdate="(null)"
 
 [init]
 db.sql="insert into webmoney_pays_ext (`pay_id`, `stage`, `kiosk`) values ($(1), 1, round(rand()*100)+1);"
@@ -46,13 +47,8 @@ request.3=$pay.summ
 request.4=$pay.data.1
 request.5=$pay.data.2
 
-print=$request
-
 config.transport.url=$common.wm_url_check
 transport.write=$request
-
-# Debug output
-print=$transport.read
 
 parser.parse=$transport.read
 
@@ -98,28 +94,25 @@ request.8=$pay.summ
 request.9=$pay.data.1
 
 request.10=$pay.bill_num
-request.11=$var.wm_date
+request.11=$var.local_date
 request.12=$var.wm_kiosk
 request.13=$pay.data.2
-
-print=$request
 
 config.transport.url=$common.wm_url_pay
 transport.write=$request
 
-# Debug output
-print=$transport.read
-
 parser.parse=$transport.read
 
 code=$parser.get.w3s\\.response.retval.
+var.wmdate=$parser.get.w3s\\.response.payment.wmdate.
 pay.error=$code.message
 stage=$code.act
 
 [complete]
 pay.result=completed
-db.sql="update webmoney_pays_ext set stage=3 where pay_id=$(1);"
+db.sql="update webmoney_pays_ext set stage=3, wmdate=STR_TO_DATE('$(2)','%Y%m%d %T') where pay_id=$(1);"
 db.sql.1=$pay.id
+db.sql.2=$var.wmdate
 db.execute=$db.sql
 
 [success]
