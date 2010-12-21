@@ -44,26 +44,37 @@ SPayResult Payment::asSPayResult()
 	memset(payRes.sender_name, 0, SIZE_REPONSE_SENDER);
 	memset(payRes.msg, 0, SIZE_REPONSE_MSG);
 
-
 	strncpy(payRes.sender_name, "UPGM", SIZE_REPONSE_SENDER);
 
 	if (result() == Payment::FAIL)
 	{
-		strncpy(payRes.msg, _errorStr.c_str(), SIZE_REPONSE_MSG);
+		strncpy(payRes.msg, _errorStr.c_str(), SIZE_REPONSE_MSG-1);
 		payRes.code=RESULT_FAILED;
 		payRes.sleep = 0;
 	}
 	if (result() == Payment::COMPLETE)
 	{
-		strncpy(payRes.msg, "Payment completed", SIZE_REPONSE_MSG);
+		strncpy(payRes.msg, "Payment; completed", SIZE_REPONSE_MSG-1);
 		payRes.code=RESULT_SUCESS;
 		payRes.sleep = 0;
 	}
 	else
 	{
-		strncpy(payRes.msg, _errorStr.c_str(), SIZE_REPONSE_MSG);
+		strncpy(payRes.msg, _errorStr.c_str(), SIZE_REPONSE_MSG-1);
 		payRes.code=RESULT_SAVE_STATE;
 		payRes.sleep = _sleep;
+	}
+
+	char * ptr = payRes.msg;
+	const char badChrs[] = {';', '\\', '\'', '\"'};
+	while (*ptr != 0) {
+		for (size_t c = 0; c < sizeof(badChrs)/sizeof(badChrs[0]); ++c) {
+			if (*ptr == badChrs[c]) {
+				*ptr = '?';
+				break;
+			}
+		}
+		++ptr;
 	}
 
 	fprintf(stderr, "Return result [%s] - %i\n", payRes.msg, payRes.sleep);
