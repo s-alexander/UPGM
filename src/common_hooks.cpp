@@ -108,6 +108,74 @@ void ConfigHook::write(const Path & path, const std::string & value)
 	}
 }
 
+LogHook::LogHook() { }
+LogHook::~LogHook() throw() {
+	if (_file.is_open()) {
+		_file.close();
+	}
+}
+
+std::string LogHook::read(const Path & path) {
+	if (path.size() > 0) {
+		const std::string & action(path[0]);
+		if ("record" == action) {
+			return _record.evaluate();
+		}
+	}
+	throw PG::InvalidArgumentException("Use log.write=$log.record");
+}
+
+void LogHook::write(const Path & path, const std::string & value) {
+	if (path.size() > 0) {
+		const std::string & action(path[0]);
+		if ("file" == action) {
+			if (path.size() == 1) {
+				_filename = value;
+			} else if (path.size() == 2) {
+				_filename.set(path[1], value);
+			} else {
+				throw PG::InvalidArgumentException("Usage: log.file=template or log.file.N=value");
+			}
+		}
+
+		else if ("record" == action) {
+			if (path.size() == 1) {
+				_record = value;
+			} else if (path.size() == 2) {
+				_record.set(path[1], value);
+			} else {
+				throw PG::InvalidArgumentException("Usage: log.record=template or log.record.N=value");
+			}
+		}
+
+		else if ("write" == action) {
+
+			const std::string path(_filename.evaluate());
+			if (_file.is_open()) {
+				_file.close();
+			}
+			_file.open(path.c_str(), std::ios_base::app | std::ios_base::out);
+			if (!_file.good()) {
+				throw PG::InvalidArgumentException(std::string("Can't open log file \"") + path + "\"");
+			}
+
+			const std::string & data(value);
+			try {
+				_file << data;
+				_file.close();
+			}
+			catch (std::exception & e) {
+				throw PG::InvalidArgumentException(std::string("Failed to write logfile (") + e.what() + ")");
+			}
+			catch (...) {
+				throw PG::InvalidArgumentException("Failed to write logfile (unknown error)");
+			}
+		} else {
+			throw PG::InvalidArgumentException("Supported actions: log.file log.record log.write");
+		}
+	}
+}
+
 PrintHook::PrintHook() { ;; }
 PrintHook::~PrintHook() throw() { ;; }
 
@@ -144,7 +212,7 @@ void DbHook::write(const Path & path, const std::string & value) {
 	else if ( path.size() == 1 && path[0] == "sql" )
 	{
 		_requestArg.clear();
-		_requestTemplate = value;
+		_requestTemplate.setTemplate(value);
 	} else if (path.size() == 2 && path[0] == "sql" ) {
 		connect();
 		_requestArg[ path[1] ] = _db->escape(value);
@@ -354,7 +422,7 @@ void RequestHook::write(const Path & path, const std::string & value)
 	if ( path.empty() )
 	{
 		_requestArg.clear();
-		_requestTemplate = value;
+		_requestTemplate.setTemplate(value);
 	} else if (path.size() == 1) {
 		_requestArg[ path[0] ] = value;
 	}

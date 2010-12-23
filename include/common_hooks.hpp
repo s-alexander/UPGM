@@ -5,6 +5,7 @@
 #include <vector>
 #include <stdexcept>
 #include <cstdlib>
+#include <fstream>
 
 #include <upgm/hook.hpp>
 #include <upgm/transport.hpp>
@@ -62,6 +63,23 @@ public:
 private:
 	const Hooks * _hooks;
 };
+
+class LogHook: public Hook
+{
+public:
+	LogHook();
+	virtual ~LogHook() throw();
+	virtual const char * name() const { return "log"; }
+
+	virtual std::string read(const Path & path);
+
+	virtual void write(const Path & path, const std::string & value);
+private:
+	std::ofstream _file;
+	Template _filename;
+	Template _record;
+};
+
 
 class PrintHook: public Hook
 {

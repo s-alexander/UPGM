@@ -5,7 +5,7 @@ stage.id.2=pay
 stage.id.3=complete
 stage.id.4=fatal
 
-db.sql="select stage,session,kiosk, DATE_FORMAT(\"$(1)\",\"%Y%m%d %H:%i:%s\") AS local_date, wmdate from webmoney_pays_ext where pay_id=$(2) union select 0,0,0,NULL,NULL"
+db.sql="select stage,session,kiosk, DATE_FORMAT(\"$(1)\",\"%Y%m%d %H:%i:%s\") AS local_date, DATE_FORMAT(wmdate,'%Y%m%d %T') as wm_date from webmoney_pays_ext where pay_id=$(2) union select 0,0,0,NULL,NULL"
 db.sql.1=$pay.stamp
 db.sql.2=$pay.id
 db.execute=$db.sql
@@ -13,7 +13,7 @@ stage.id=$db.field.stage
 var.wm_session=$db.field.session
 var.local_date=$db.field.local_date
 var.wm_kiosk=$db.field.kiosk
-var.wmdate="(null)"
+var.wmdate=$db.field.wm_date
 
 [init]
 db.sql="insert into webmoney_pays_ext (`pay_id`, `stage`, `kiosk`) values ($(1), 1, round(rand()*100)+1);"
@@ -114,6 +114,14 @@ db.sql="update webmoney_pays_ext set stage=3, wmdate=STR_TO_DATE('$(2)','%Y%m%d 
 db.sql.1=$pay.id
 db.sql.2=$var.wmdate
 db.execute=$db.sql
+
+#log.file="/tmp/pay_log_$(1)"
+#log.file.1=$pay.id
+#log.record="payment id $(1) date $(2)
+#"
+#log.record.1=$pay.id
+#log.record.2=$var.wmdate
+#log.write=$log.record
 
 [success]
 stage=$stage.next

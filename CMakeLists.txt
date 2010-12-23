@@ -62,6 +62,7 @@ ADD_LIBRARY (upgm
 	src/parser.cpp
 	src/payment.cpp
 	src/xml_parser.cpp
+	src/template.cpp
 	src/request_template.cpp
 	src/http_transport.cpp
 	src/payguide_curl.cpp
