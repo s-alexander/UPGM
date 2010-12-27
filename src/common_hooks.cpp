@@ -275,6 +275,13 @@ std::string ParserHook::read(const Path & path) {
 	if (path[0] == "get") {
 		return _data(Path(path.begin()+1, path.end()));
 	}
+	else if (path[0] == "try_get") {
+		try {
+			return _data(Path(path.begin()+1, path.end()));
+		} catch (...) {
+			return std::string();
+		}
+	}
 
 	throw InvalidArgumentException("parser hook invalid read");
 }

@@ -27,7 +27,7 @@ wm_signature.keyfile=$common.wm_keyfile
 wm_signature.login=$common.wm_login
 wm_signature.password=$common.wm_password
 
-wm_signature.append_data=$common.wm_login
+wm_signature.data=$common.wm_login
 wm_signature.append_data=$pay.summ
 wm_signature.append_data=$pay.data.2
 wm_signature.append_data=$pay.data.1
@@ -52,6 +52,13 @@ transport.write=$request
 
 parser.parse=$transport.read
 
+# Write rests
+db.sql="update rests set value='$(1)', stamp=STR_TO_DATE('$(2)','%Y%m%d %T') where id=$(3) AND (stamp is NULL OR stamp <= STR_TO_DATE('$(2)','%Y%m%d %T')) AND LENGTH('$(2)') > 0"
+db.sql.1=$parser.try_get.w3s\\.response.payment.rest.
+db.sql.2=""
+db.sql.3=$common.rest_id
+db.execute=$db.sql
+
 code=$parser.get.w3s\\.response.retval.
 pay.error=$code.message
 stage=$code.act
@@ -61,7 +68,7 @@ wm_signature.keyfile=$common.wm_keyfile
 wm_signature.login=$common.wm_login
 wm_signature.password=$common.wm_password
 
-wm_signature.append_data=$var.wm_session
+wm_signature.data=$var.wm_session
 wm_signature.append_data=$pay.summ
 wm_signature.append_data=$pay.bill_num
 wm_signature.append_data=$var.wm_kiosk
@@ -114,6 +121,7 @@ db.sql="update webmoney_pays_ext set stage=3, wmdate=STR_TO_DATE('$(2)','%Y%m%d 
 db.sql.1=$pay.id
 db.sql.2=$var.wmdate
 db.execute=$db.sql
+
 
 #log.file="/tmp/pay_log_$(1)"
 #log.file.1=$pay.id

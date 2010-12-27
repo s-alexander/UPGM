@@ -61,7 +61,9 @@ void Config::resetTmp(std::string & buffer)
 }
 void Config::saveTmp(std::string & buffer, const std::string & data)
 {
-	buffer.append(data, _blockStart, _blockEnd-_blockStart);
+	if (_blockStart > 0 && _blockEnd >= _blockStart) {
+		buffer.append(data, _blockStart, _blockEnd-_blockStart);
+	}
 	_blockStart = -1;
 	_blockEnd = -1;
 }

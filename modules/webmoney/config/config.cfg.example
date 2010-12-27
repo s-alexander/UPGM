@@ -10,6 +10,7 @@ wm_password=111
 wm_url_check=https://w3s.guarantee.ru/XMLBankGatewaysInputAccess1.aspx 
 wm_url_pay=https://w3s.guarantee.ru/XMLBankGatewaysInput.aspx 
 testmode=1
+rest_id=14
 
 [parser]
 

@@ -23,7 +23,7 @@ class WebMoneySignatureHook: public Hook
 	{
 		const std::string toSignCopy(_toSign);
 		szptr toSign = toSignCopy.c_str(), szSign, login = _login.c_str(), password = _password.c_str();
-		_toSign.clear();
+		//_toSign.clear();
 		char pszOut[MAXBUF+1] = "";
 
 		Signer sign(login, password, 0);
@@ -68,11 +68,13 @@ class WebMoneySignatureHook: public Hook
 				_login = value;
 			} else if (path[0] == "password") {
 				_password = value;
+			} else if (path[0] == "data") {
+				_toSign = value;
 			} else if (path[0] == "append_data") {
 				_toSign += value;
 			}
 			else {
-				throw InvalidArgumentException("Supported operations: keyfile login password append_data");
+				throw InvalidArgumentException("Supported operations: keyfile login password data append_data");
 			}
 		}
 		else {
