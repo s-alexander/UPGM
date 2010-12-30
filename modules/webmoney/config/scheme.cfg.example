@@ -14,6 +14,7 @@ var.wm_session=$db.field.session
 var.local_date=$db.field.local_date
 var.wm_kiosk=$db.field.kiosk
 var.wmdate=$db.field.wm_date
+var.wmerror=""
 
 [init]
 db.sql="insert into webmoney_pays_ext (`pay_id`, `stage`, `kiosk`) values ($(1), 1, round(rand()*100)+1);"
@@ -53,14 +54,16 @@ transport.write=$request
 parser.parse=$transport.read
 
 # Write rests
-db.sql="update rests set value='$(1)', stamp=STR_TO_DATE('$(2)','%Y%m%d %T') where id=$(3) AND (stamp is NULL OR stamp <= STR_TO_DATE('$(2)','%Y%m%d %T')) AND LENGTH('$(2)') > 0"
+db.sql="update rests set value='$(1)', stamp=now() where id=$(2) AND LENGTH('$(1)') > 0"
 db.sql.1=$parser.try_get.w3s\\.response.payment.rest.
-db.sql.2=""
-db.sql.3=$common.rest_id
+db.sql.2=$common.rest_id
 db.execute=$db.sql
 
 code=$parser.get.w3s\\.response.retval.
-pay.error=$code.message
+template.error=$code.message
+var.wmerror.cp1251=$parser.try_get.w3s\\.response.description.
+template.error.WMERROR=$var.wmerror
+pay.error=$template.error
 stage=$code.act
 
 [pay]
@@ -110,9 +113,12 @@ transport.write=$request
 
 parser.parse=$transport.read
 
-code=$parser.get.w3s\\.response.retval.
 var.wmdate=$parser.get.w3s\\.response.payment.wmdate.
-pay.error=$code.message
+code=$parser.get.w3s\\.response.retval.
+template.error=$code.message
+var.wmerror.cp1251=$parser.try_get.w3s\\.response.description.
+template.error.WMERROR=$var.wmerror
+pay.error=$template.error
 stage=$code.act
 
 [complete]

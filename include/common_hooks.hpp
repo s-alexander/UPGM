@@ -36,6 +36,20 @@ private:
 	DataTree _data;
 };
 
+class TemplateHook: public Hook
+{
+public:
+	TemplateHook();
+	virtual ~TemplateHook() throw();
+	virtual const char * name() const { return "template"; }
+
+	virtual std::string read(const Path & path);
+
+	virtual void write(const Path & path, const std::string & value);
+private:
+	std::map<std::string, Template> _templates;
+};
+
 class MainConfigHook: public Hook
 {
 public:

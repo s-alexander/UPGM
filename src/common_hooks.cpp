@@ -49,9 +49,72 @@ std::string VarHook::read(const Path & path)
 	return _data(path);
 }
 
+static std::string cp1251tokoi8r(const std::string & win1251msg)
+{
+	static const char c_win1251 [] = "ÊÃÕËÅÎÇÛİÚÈßÆÙ×ÁĞÒÏÌÄÖÜÑŞÓÍÉÔØÂÀêãõëåîçûıúèÿæù÷áğòïìäöüñşóíéôøâà";
+	static const char c_koi8r   [] = "ëçèìåïúùüÿéñöışâòôğíäãøóàõîêæû÷áËÇÈÌÅÏÚÙÜßÉÑÖİŞÂÒÔĞÍÄÃØÓÀÕÎÊÆÛ×Á";
+
+	static unsigned int l_alphabet=sizeof(c_win1251)/sizeof(c_win1251[0]);
+	bool found=false;
+	std::string result(win1251msg);
+	typedef std::string::const_iterator string_iter;
+	for (string_iter i = win1251msg.begin(); i != win1251msg.end(); ++i)
+	{
+		found=false;
+		const size_t pos(std::distance(win1251msg.begin(), i));
+		for (size_t b=0; b<l_alphabet && !found; ++b)
+		{
+			if (*i == c_win1251[b])
+			{
+				result[pos]=c_koi8r[b];
+				found=true;
+			}
+		}
+		if (false == found)
+		{
+			result[pos] = *i;
+		}
+	}
+	return result;
+
+}
 void VarHook::write(const Path & path, const std::string & value)
 {
-	_data.set(path, value);
+	if (path.size() == 1)
+	{
+		_data.set(path, value);
+		return;
+	} else if (path.size() > 1) {
+		if (path[1] == "cp1251") {
+			const std::string inKoi8r(cp1251tokoi8r(value));
+			_data.set(path[0], inKoi8r);
+			return;
+		}
+	}
+	throw PG::InvalidArgumentException("Invalid var usage. Supported operation: var.name=xxx var.name.cp1251=xxx var.name.append=xxx");
+}
+
+TemplateHook::TemplateHook() { ;; }
+TemplateHook::~TemplateHook() throw() { ;; }
+
+std::string TemplateHook::read(const Path & path)
+{
+	pathMustBeEqualTo(1, path);
+	return _templates[path[0]].evaluate();
+}
+
+void TemplateHook::write(const Path & path, const std::string & value)
+{
+	pathMustBeGreaterThan(0, path);
+	pathMustBeLesserThan(3, path);
+	const std::string & name (path[0]);
+	if (path.size() == 1)
+	{
+		_templates[name].setTemplate(value);
+	} else if (path.size() > 1) {
+		const std::string & param(path[1]);
+		_templates[name].set(param, value);
+	}
 }
 
 MainConfigHook::MainConfigHook() { ;; }
