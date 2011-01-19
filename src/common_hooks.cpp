@@ -465,8 +465,8 @@ void CodeHook::write(const Path & path, const std::string & value)
 		}
 		catch ( ... ) {
 			populate(codeData,_codes.section("default"));
-			const std::string messageStr(std::string("Unknown payment error (code ") + code + ")");
-			codeData.set("message", messageStr);
+			//const std::string messageStr(std::string("Unknown payment error (code ") + code + ")");
+			//codeData.set("message", messageStr);
 		}
 
 		_data = codeData;
@@ -474,7 +474,7 @@ void CodeHook::write(const Path & path, const std::string & value)
 	catch (const Config::NoSuchValue & e) {
 		throw std::runtime_error(std::string("Unknow error code - ") +
 					 asString(atoi(value.c_str())) +
-					 "; Define it in codes.cfg");
+					 " (and no default section); define it in codes.cfg");
 	}
 }
 
