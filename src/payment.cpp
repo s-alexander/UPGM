@@ -52,7 +52,7 @@ SPayResult Payment::asSPayResult()
 		payRes.code=RESULT_FAILED;
 		payRes.sleep = 0;
 	}
-	if (result() == Payment::COMPLETE)
+	else if (result() == Payment::COMPLETE)
 	{
 		strncpy(payRes.msg, "Payment; completed", SIZE_REPONSE_MSG-1);
 		payRes.code=RESULT_SUCESS;
