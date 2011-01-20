@@ -1,14 +1,14 @@
-#include "@PAYGUIDE_SRC@/src/pay.h"
-#include "@PAYGUIDE_SRC@/src/core.h"
-#include "@CMAKE_SOURCE_DIR@/include/upgm.hpp"
-#include "@MODPATH@/include/@MODNAME@.hpp"
-#include "@CMAKE_SOURCE_DIR@/include/shared_mysql_connection.hpp"
-#include "@CMAKE_SOURCE_DIR@/include/http_transport.hpp"
-#include "@CMAKE_SOURCE_DIR@/include/xml_parser.hpp"
-#include "@CMAKE_SOURCE_DIR@/include/payment.hpp"
-#include "@CMAKE_SOURCE_DIR@/include/db_mysql.hpp"
+#include "/home/alex/proj/payguide/payguide_production/src/pay.h"
+#include "/home/alex/proj/payguide/payguide_production/src/core.h"
+#include "/home/alex/proj/UPGM/include/upgm.hpp"
+#include "/home/alex/proj/UPGM/modules/centrtelecom/include/centrtelecom.hpp"
+#include "/home/alex/proj/UPGM/include/shared_mysql_connection.hpp"
+#include "/home/alex/proj/UPGM/include/http_transport.hpp"
+#include "/home/alex/proj/UPGM/include/xml_parser.hpp"
+#include "/home/alex/proj/UPGM/include/payment.hpp"
+#include "/home/alex/proj/UPGM/include/db_mysql.hpp"
 
-typedef @PG_MODULE_CLASS@ ModuleClass;
+typedef PG::UPGM ModuleClass;
 int main(int argc, char ** argv)
 {
 	return 0;

@@ -1,0 +1,23 @@
+[0]
+message="Performing next stage ($(WMERROR))"
+act=success
+
+[-3]
+message="Access denied ($(WMERROR))"
+act=fatal
+
+[-10]
+message="Signature mismatch ($(WMERROR))"
+act=fatal
+
+[-15]
+message="Invalid purse number ($(WMERROR))"
+act=fatal
+
+[-12]
+message="Invalid bill number ($(WMERROR))"
+act=fatal
+
+[default]
+message="Error: $(WMERROR)"
+act=fatal
