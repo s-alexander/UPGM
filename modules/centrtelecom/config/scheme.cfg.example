@@ -5,16 +5,16 @@ stage.id.2=pay
 stage.id.3=complete
 stage.id.4=fatal
 
-db.sql="select stage,session,kiosk, DATE_FORMAT(\"$(1)\",\"%Y%m%d %H:%i:%s\") AS local_date, DATE_FORMAT(ctdate,'%Y%m%d %T') as ct_date from centrtelecom_pays_ext where pay_id=$(2) union select 0,0,0,NULL,NULL"
+db.sql="select stage,session,kiosk, DATE_FORMAT(\"$(1)\",\"%Y-%m-%dT%H:%i:%s\") AS local_date, DATE_FORMAT(ctdate,'%Y%m%d %T') as ct_date from centrtelecom_pays_ext where pay_id=$(2) union select 0,0,0,NULL,NULL"
 db.sql.1=$pay.stamp
 db.sql.2=$pay.id
 db.execute=$db.sql
 stage.id=$db.field.stage
 var.ct_session=$db.field.session
 var.local_date=$db.field.local_date
-var.wm_kiosk=$db.field.kiosk
-var.wmdate=$db.field.wm_date
-var.wmerror=""
+var.ct_kiosk=$db.field.kiosk
+var.ctdate=$db.field.ct_date
+var.cterror=""
 
 [init]
 db.sql="insert into centrtelecom_pays_ext (`pay_id`, `stage`, `kiosk`) values ($(1), 1, round(rand()*100)+1);"
@@ -24,60 +24,78 @@ stage=main
 
 # Payment check
 [check]
-request="$(1)?action=check&number=$(2)&amount=$(3)&receipt=$(4)&date=$(5)
+request="https://$(1)?action=check&number=$(2)&amount=$(3)&receipt=$(4)&type=$(5)"
 
-request.1=https://pgate.centertelecom.ru/adapter/intercapital/tm/proxy
+request.1=pgate.centertelecom.ru/adapter/intercapital/tm/proxy
 request.2=$pay.data
 request.3=$pay.summ
 request.4=$var.ct_session
-request.5=$var.wmdate
+request.5=1
 
-transport.get=$request
+config.transport.method=get
+config.transport.url=$request
+print=$request
+transport.write=""
+print=$transport.read
 
 parser.parse=$transport.read
 
-code=$parser.get.w3s\\.response.retval.
+code=$parser.get.response.code.
 template.error=$code.message
-var.wmerror.cp1251=$parser.try_get.w3s\\.response.description.
-template.error.WMERROR=$var.wmerror
+var.cterror.cp1251=$parser.try_get.response.message.
+template.error.CP_ERROR=$var.cterror
+var.ctdate=$parser.get.response.date.
 pay.error=$template.error
+
+db.sql="update centrtelecom_pays_ext set ctdate=STR_TO_DATE('$(2)','%Y-%m-%dT%T') where pay_id=$(1);"
+db.sql.1=$pay.id
+db.sql.2=$var.ctdate
+db.execute=$db.sql
+
 stage=$code.act
 
 [pay]
-request="$(1)?action=pay&number=$(2)&amount=$(3)&receipt=$(4)&date=$(5)
+request="https://$(1)?action=payment&number=$(2)&amount=$(3)&receipt=$(4)&type=$(5)&date=$(6)"
 
-request.1=https://pgate.centertelecom.ru/adapter/intercapital/tm/proxy
+request.1=pgate.centertelecom.ru/adapter/intercapital/tm/proxy
 request.2=$pay.data
 request.3=$pay.summ
 request.4=$var.ct_session
-request.5=$var.wmdate
+request.5=1
+request.6=$var.ctdate
 
-transport.get=$request
+config.transport.method=get
+config.transport.url=$request
+transport.write=""
+print=$transport.read
 
 parser.parse=$transport.read
 
-code=$parser.get.w3s\\.response.retval.
+code=$parser.get.response.code.
 template.error=$code.message
-var.wmerror.cp1251=$parser.try_get.w3s\\.response.description.
-template.error.WMERROR=$var.wmerror
+var.cterror.cp1251=$parser.try_get.response.message.
+template.error.CP_ERROR=$var.cterror
 pay.error=$template.error
 stage=$code.act
 
 [complete]
 pay.result=completed
-db.sql="update centrtelecom_pays_ext set stage=3, wmdate=STR_TO_DATE('$(2)','%Y%m%d %T') where pay_id=$(1);"
-db.sql.1=$pay.id
-db.sql.2=$var.wmdate
-db.execute=$db.sql
+#db.sql="update centrtelecom_pays_ext set stage=3, ctdate=STR_TO_DATE('$(2)','%Y-%m-%dT%T') where pay_id=$(1);"
+#db.sql.1=$pay.id
+#db.sql.2=$var.ctdate
+#db.execute=$db.sql
 
-
-#log.file="/tmp/pay_log_$(1)"
-#log.file.1=$pay.id
-#log.record="payment id $(1) date $(2)
-#"
-#log.record.1=$pay.id
-#log.record.2=$var.wmdate
-#log.write=$log.record
+log.file="/tmp/CTK_INTERKAPITAL_$(1)"
+log.file.1=$var.ctdate
+log.record="$(1)	$(2)	$(4)	$(5)	$(6)
+"
+log.record.1=$pay.data
+log.record.2=1
+log.record.3=$var.ctdate
+log.record.4=$pay.summ
+log.record.5=0.00
+log.record.6=$var.ct_session
+log.write=$log.record
 
 [success]
 stage=$stage.next

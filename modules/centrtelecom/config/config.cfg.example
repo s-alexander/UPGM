@@ -15,7 +15,12 @@ testmode=1
 [parser]
 
 [transport]
-port=443
+port=9001
+private_key=/home/alex/proj/UPGM/modules/centrtelecom/keys/centrtelecom/private.key
+client_private_key_password=njncfvsqvty[fepty
+client_certificate_password=njncfvsqvty[fepty
+client_certificate=/home/alex/proj/UPGM/modules/centrtelecom/keys/centrtelecom/intercapitalTM150211.pem
+
 
 [pay]
 data_separator=$

@@ -1,23 +1,72 @@
 [0]
-message="Performing next stage ($(WMERROR))"
+message="Performing next stage ($(CP_ERROR))"
 act=success
 
-[-3]
-message="Access denied ($(WMERROR))"
+[-2]
+message="Wrong provider ID, bank ID, bill type or payment point ID ($(CP_ERROR))"
 act=fatal
 
-[-10]
-message="Signature mismatch ($(WMERROR))"
+[-1]
+message="Wrong additional parameter format ($(CP_ERROR))"
 act=fatal
 
-[-15]
-message="Invalid purse number ($(WMERROR))"
+[1]
+message="Wrong request type ($(CP_ERROR))"
 act=fatal
 
-[-12]
-message="Invalid bill number ($(WMERROR))"
+[2]
+message="Account not found ($(CP_ERROR))"
 act=fatal
+
+[3]
+message="Wrong payment amount ($(CP_ERROR))"
+act=fatal
+
+[4]
+message="Wrong payment ID (duplicate session number) ($(CP_ERROR))"
+act=fatal
+
+[5]
+message="Wrong date ($(CP_ERROR))"
+act=fatal
+
+[6]
+message="Payment not found ($(CP_ERROR))"
+act=fatal
+
+[7]
+message="Payment canceled ($(CP_ERROR))"
+act=fatal
+
+[9]
+message="Payment can not be canceled ($(CP_ERROR))"
+act=fatal
+
+[13]
+message="Wrong payment cancelation reason ($(CP_ERROR))"
+act=fatal
+
+[14]
+message="Wrong service ID ($(CP_ERROR))"
+act=fatal
+
+[32]
+message="Wrong signature ($(CP_ERROR))"
+act=fatal
+
+[33]
+message="Your IP address is blocked ($(CP_ERROR))"
+act=fatal
+
+[97]
+message="Not enought money on deposit account ($(CP_ERROR))"
+act=sleep
+
+[99]
+message="Another error ($(CP_ERROR))"
+act=sleep
 
 [default]
-message="Error: $(WMERROR)"
+message="Error: $(CP_ERROR)"
 act=fatal
+
