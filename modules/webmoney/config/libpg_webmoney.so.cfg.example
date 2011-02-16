@@ -2,5 +2,5 @@
 codes=/etc/upgm/webmoney/codes.cfg
 scheme=/etc/upgm/webmoney/scheme.cfg
 config=/etc/upgm/webmoney/config.cfg
-log=/dev/null
+log=/var/log/webmoney_logs
 [end]

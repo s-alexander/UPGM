@@ -7,7 +7,7 @@
 namespace PG
 {
 
-Config::Config()
+Config::Config(): _inQuote(false)
 {
 }
 
@@ -29,13 +29,14 @@ void Config::flush()
 {
 	bool root = _section.empty();
 	if (root) {
-		_root.push_back( ConfigEntry ( _param, _value) );
+		_root.push_back( ConfigEntry ( _param, ConfigValue(_value, _inQuote)) );
 	}
 	else {
-		_data[_section].push_back( ConfigEntry ( _param, _value) );
+		_data[_section].push_back( ConfigEntry ( _param, ConfigValue(_value, _inQuote)) );
 	}
 	_param.clear();
 	_value.clear();
+	_inQuote = false;
 }
 
 void Config::parseFile(const std::string & filename)
@@ -90,7 +91,6 @@ void Config::parse(const std::string & data)
 	enum ReadMode { UNDEF, SECTION, PARAM, VALUE, COMMENT };
 	ReadMode readMode = UNDEF;
 	bool skipOneChar = false;
-	bool inQuote = false;
 
 	for (std::string::const_iterator it = data.begin();
 	     it != data.end();
@@ -119,7 +119,7 @@ void Config::parse(const std::string & data)
 		break;
 
 		case VALUE:
-		if (NULL == endMark && quote == chr && !escaped) { endMark = &quote; inQuote = true; skipOneChar = true; }
+		if (NULL == endMark && quote == chr && !escaped) { endMark = &quote; _inQuote = true; skipOneChar = true; }
 		else if ( !isSkippable(chr) && NULL == endMark) { endMark = &linebreak; }
 		else
 		{
@@ -127,13 +127,13 @@ void Config::parse(const std::string & data)
 			const bool isEndMark = (!escaped && NULL != endMark && *endMark == chr) || (NULL == endMark && linebreak == chr);
 			if ( isEndMark || lastChar) {
 				if (lastChar && !isEndMark) { ++ _blockEnd; }
-				saveTmp(_value, data); flush(); readMode = UNDEF; inQuote = false; endMark = NULL;
+				saveTmp(_value, data); flush(); readMode = UNDEF; _inQuote = false; endMark = NULL;
 			}
 		}
 		break;
 		}
 
-		if (!skipOneChar && readMode != UNDEF && (!isSkippable(chr) || inQuote )) {
+		if (!skipOneChar && readMode != UNDEF && (!isSkippable(chr) || _inQuote )) {
 			_blockEnd = i+1;
 			if (-1 == _blockStart ) {
 				_blockStart = i;

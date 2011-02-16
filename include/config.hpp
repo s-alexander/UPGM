@@ -9,6 +9,18 @@
 namespace PG
 {
 
+class ConfigValue {
+public:
+	ConfigValue(const std::string value, bool inQuote):
+		_value(value), _inQuote(inQuote) { ;; }
+	const std::string & value() const { return _value; }
+	bool inQuote() const { return _inQuote; }
+	const std::string & operator*() const { return _value; }
+private:
+	std::string _value;
+	bool _inQuote;
+};
+
 class Config
 {
 public:
@@ -22,7 +34,7 @@ public:
 	private:
 		std::string _value;
 	};
-	typedef std::pair<std::string, std::string> ConfigEntry;
+	typedef std::pair<std::string, ConfigValue> ConfigEntry;
 	typedef std::vector< ConfigEntry > Section;
 	Config();
 	~Config() throw();
@@ -45,6 +57,7 @@ private:
 	CfgData _data;
 	long long _blockStart;
 	long long _blockEnd;
+	bool _inQuote;
 	std::string _section;
 	std::string _param;
 	std::string _value;

@@ -68,8 +68,8 @@ void HTTPTransport::writeImpl(const std::string & data)
 		}
 	} catch ( ... ) { ;; }
 
-
-	_curl->SendRequest(url, port, data, Curl::POST, timeout);
+	const std::string method(_config("method"));
+	_curl->SendRequest(url, port, data, ((method == "get" ) ? Curl::GET: Curl::POST), timeout);
 }
 
 PG::DataTree HTTPTransport::readImpl(std::string & buffer)

@@ -39,7 +39,9 @@ void Template::parse(const std::string & request)
 			if ((chr == varMark && !escaped) || lastChr)
 			{
 				readMode = VAR;
-				buff.append(request, blockStart, blockEnd-blockStart+(lastChr?1:0)+1);
+				if (request.begin() != it) {
+					buff.append(request, blockStart, blockEnd-blockStart+(lastChr?1:0)+1);
+				}
 				blockStart = blockEnd;
 				varBegin = buff.length();
 			}

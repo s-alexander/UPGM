@@ -51,10 +51,11 @@ void UPGM::registerHook(HookPtr  hook)
 	}
 }
 
-std::string UPGM::evaluateConfigValue(const std::string & value)
+std::string UPGM::evaluateConfigValue(const ConfigValue & cvalue)
 {
+	const std::string & value (cvalue.value());
 	const char variableMark = '$';
-	if (value.length() > 0)
+	if (!cvalue.inQuote() && value.length() > 1)
 	{
 		if (value[0] == variableMark)
 		{

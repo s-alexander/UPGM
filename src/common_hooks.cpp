@@ -441,7 +441,7 @@ void CodeHook::populate(DataTree & tree, const Config::Section & sec)
 	for (Config::Section::const_iterator it = sec.begin();
 	     it != sec.end();
 	     ++it) {
-		tree.set(it->first, it->second);
+		tree.set(it->first, it->second.value());
 	}
 }
 

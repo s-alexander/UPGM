@@ -1,7 +1,7 @@
 #include "@PAYGUIDE_SRC@/src/pay.h"
 #include "@PAYGUIDE_SRC@/src/core.h"
 #include "@CMAKE_SOURCE_DIR@/include/upgm.hpp"
-#include "@MODPATH@/include/@MODNAME@.hpp"
+@INCLUDE_MODFILES@
 #include "@CMAKE_SOURCE_DIR@/include/shared_mysql_connection.hpp"
 #include "@CMAKE_SOURCE_DIR@/include/http_transport.hpp"
 #include "@CMAKE_SOURCE_DIR@/include/xml_parser.hpp"
@@ -80,7 +80,7 @@ extern "C" SPayResult SendData(SPay *data, void *init_param, void *first_init_pa
 
 	module.performStage(&globalContext->mysqlConnection, payment);
 
-	return payment.asSPayResult();
+	return payment.asSPayResult("@MODNAME@");
 }
 
 

@@ -85,7 +85,7 @@ private:
 	virtual std::auto_ptr<Parser> getParser(const std::string & name);
 	virtual std::auto_ptr<Db> getDb(const std::string & name, DbConnection * dbConnection);
 
-	std::string evaluateConfigValue(const std::string & value);
+	std::string evaluateConfigValue(const ConfigValue & cvalue);
 	void evaluateConfigParam(const std::string & param, const std::string & value);
 	void evalParams(const std::string & sectionName);
 

@@ -38,13 +38,15 @@ Payment::Payment(const SPay & pay)
 	_data = pay;
 }
 
-SPayResult Payment::asSPayResult()
+SPayResult Payment::asSPayResult() { return this->asSPayResult("UPGM"); }
+
+SPayResult Payment::asSPayResult(const char * modname)
 {
 	SPayResult payRes;
 	memset(payRes.sender_name, 0, SIZE_REPONSE_SENDER);
 	memset(payRes.msg, 0, SIZE_REPONSE_MSG);
 
-	strncpy(payRes.sender_name, "UPGM", SIZE_REPONSE_SENDER);
+	strncpy(payRes.sender_name, modname, SIZE_REPONSE_SENDER);
 
 	if (result() == Payment::FAIL)
 	{
@@ -54,7 +56,7 @@ SPayResult Payment::asSPayResult()
 	}
 	else if (result() == Payment::COMPLETE)
 	{
-		strncpy(payRes.msg, "Payment; completed", SIZE_REPONSE_MSG-1);
+		strncpy(payRes.msg, "Payment completed", SIZE_REPONSE_MSG-1);
 		payRes.code=RESULT_SUCESS;
 		payRes.sleep = 0;
 	}

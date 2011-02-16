@@ -17,7 +17,7 @@ public:
 		     it != config.end();
 		     ++it)
 		{
-			_params[it->first] = it->second;
+			_params[it->first] = it->second.value();
 		}
 	}
 	virtual ~Hook() throw() { ;; }

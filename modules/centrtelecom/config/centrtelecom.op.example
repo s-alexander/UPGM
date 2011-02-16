@@ -1,5 +1,5 @@
 operator_id=1
-paysys_1=WebMoney
+paysys_1=CentrTelecom
 
-[libpg_webmoney.so]
+[libpg_centrtelecom.so]
 [end]

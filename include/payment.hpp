@@ -31,6 +31,7 @@ public:
 	Payment(const SPay & pay);
 	const std::string & errorStr() const { return _errorStr; }
 	SPayResult asSPayResult();
+	SPayResult asSPayResult(const char * modname);
 private:
 	SPay _data;
 	Result _result;

@@ -5,59 +5,36 @@ stage.id.2=pay
 stage.id.3=complete
 stage.id.4=fatal
 
-db.sql="select stage,session,kiosk, DATE_FORMAT(\"$(1)\",\"%Y%m%d %H:%i:%s\") AS local_date, DATE_FORMAT(wmdate,'%Y%m%d %T') as wm_date from webmoney_pays_ext where pay_id=$(2) union select 0,0,0,NULL,NULL"
+db.sql="select stage,session,kiosk, DATE_FORMAT(\"$(1)\",\"%Y%m%d %H:%i:%s\") AS local_date, DATE_FORMAT(ctdate,'%Y%m%d %T') as ct_date from centrtelecom_pays_ext where pay_id=$(2) union select 0,0,0,NULL,NULL"
 db.sql.1=$pay.stamp
 db.sql.2=$pay.id
 db.execute=$db.sql
 stage.id=$db.field.stage
-var.wm_session=$db.field.session
+var.ct_session=$db.field.session
 var.local_date=$db.field.local_date
 var.wm_kiosk=$db.field.kiosk
 var.wmdate=$db.field.wm_date
 var.wmerror=""
 
 [init]
-db.sql="insert into webmoney_pays_ext (`pay_id`, `stage`, `kiosk`) values ($(1), 1, round(rand()*100)+1);"
+db.sql="insert into centrtelecom_pays_ext (`pay_id`, `stage`, `kiosk`) values ($(1), 1, round(rand()*100)+1);"
 db.sql.1=$pay.id
 db.execute=$db.sql
 stage=main
 
 # Payment check
 [check]
-wm_signature.keyfile=$common.wm_keyfile
-wm_signature.login=$common.wm_login
-wm_signature.password=$common.wm_password
+request="$(1)?action=check&number=$(2)&amount=$(3)&receipt=$(4)&date=$(5)
 
-wm_signature.data=$common.wm_login
-wm_signature.append_data=$pay.summ
-wm_signature.append_data=$pay.data.2
-wm_signature.append_data=$pay.data.1
-
-request="<w3s.request>
-	<wmid>$(1)</wmid>
-	<sign type=\"1\">$(2)</sign>
-	<payment>
-		<price>$(3)</price>
-		<purse>$(4)</purse>
-		<phone>$(5)</phone>
-	</payment></w3s.request>"
-
-request.1=$common.wm_login
-request.2=$wm_signature
+request.1=https://pgate.centertelecom.ru/adapter/intercapital/tm/proxy
+request.2=$pay.data
 request.3=$pay.summ
-request.4=$pay.data.1
-request.5=$pay.data.2
+request.4=$var.ct_session
+request.5=$var.wmdate
 
-config.transport.url=$common.wm_url_check
-transport.write=$request
+transport.get=$request
 
 parser.parse=$transport.read
-
-# Write rests
-db.sql="update rests set value='$(1)', stamp=now() where id=$(2) AND LENGTH('$(1)') > 0"
-db.sql.1=$parser.try_get.w3s\\.response.payment.rest.
-db.sql.2=$common.rest_id
-db.execute=$db.sql
 
 code=$parser.get.w3s\\.response.retval.
 template.error=$code.message
@@ -67,53 +44,18 @@ pay.error=$template.error
 stage=$code.act
 
 [pay]
-wm_signature.keyfile=$common.wm_keyfile
-wm_signature.login=$common.wm_login
-wm_signature.password=$common.wm_password
+request="$(1)?action=pay&number=$(2)&amount=$(3)&receipt=$(4)&date=$(5)
 
-wm_signature.data=$var.wm_session
-wm_signature.append_data=$pay.summ
-wm_signature.append_data=$pay.bill_num
-wm_signature.append_data=$var.wm_kiosk
+request.1=https://pgate.centertelecom.ru/adapter/intercapital/tm/proxy
+request.2=$pay.data
+request.3=$pay.summ
+request.4=$var.ct_session
+request.5=$var.wmdate
 
-request="<w3s.request>
-	<wmid>$(1)</wmid>
-	<sign type=\"1\">$(2)</sign>
-	<payment id=\"$(3)\" test=\"$(4)\">
-		<name>$(5)</name>
-		<passport_serie>$(6)</passport_serie>
-		<passport_date>$(7)</passport_date>
-		<price>$(8)</price>
-		<purse>$(9)</purse>
-		<cheque>$(10)</cheque>
-		<date>$(11)</date>
-		<kiosk_id>$(12)</kiosk_id>
-		<phone>$(13)</phone>
-	</payment>
-</w3s.request>"
-
-request.1=$common.wm_login
-request.2=$wm_signature
-request.3=$var.wm_session
-request.4=$common.testmode
-request.5=$pay.data.0
-request.6=$pay.data.3
-request.7=$pay.data.4
-
-request.8=$pay.summ
-request.9=$pay.data.1
-
-request.10=$pay.bill_num
-request.11=$var.local_date
-request.12=$var.wm_kiosk
-request.13=$pay.data.2
-
-config.transport.url=$common.wm_url_pay
-transport.write=$request
+transport.get=$request
 
 parser.parse=$transport.read
 
-var.wmdate=$parser.get.w3s\\.response.payment.wmdate.
 code=$parser.get.w3s\\.response.retval.
 template.error=$code.message
 var.wmerror.cp1251=$parser.try_get.w3s\\.response.description.
@@ -123,7 +65,7 @@ stage=$code.act
 
 [complete]
 pay.result=completed
-db.sql="update webmoney_pays_ext set stage=3, wmdate=STR_TO_DATE('$(2)','%Y%m%d %T') where pay_id=$(1);"
+db.sql="update centrtelecom_pays_ext set stage=3, wmdate=STR_TO_DATE('$(2)','%Y%m%d %T') where pay_id=$(1);"
 db.sql.1=$pay.id
 db.sql.2=$var.wmdate
 db.execute=$db.sql
@@ -139,13 +81,13 @@ db.execute=$db.sql
 
 [success]
 stage=$stage.next
-db.sql="update webmoney_pays_ext set stage=stage+1 where pay_id=$(1);"
+db.sql="update centrtelecom_pays_ext set stage=stage+1 where pay_id=$(1);"
 db.sql.1=$pay.id
 db.execute=$db.sql
 
 [fatal]
 pay.result=failed
-db.sql="update webmoney_pays_ext set stage=4 where pay_id=$(1);"
+db.sql="update centrtelecom_pays_ext set stage=4 where pay_id=$(1);"
 db.sql.1=$pay.id
 db.execute=$db.sql
 

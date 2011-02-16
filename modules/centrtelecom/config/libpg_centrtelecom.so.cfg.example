@@ -1,0 +1,6 @@
+[WebMoney]
+codes=/etc/upgm/centrtelecom/codes.cfg
+scheme=/etc/upgm/centrtelecom/scheme.cfg
+config=/etc/upgm/centrtelecom/config.cfg
+log=/var/log/centrtelecom_logs
+[end]
