@@ -5,13 +5,12 @@ stage.id.2=pay
 stage.id.3=complete
 stage.id.4=fatal
 
-db.sql="select stage,session,kiosk, DATE_FORMAT(\"$(1)\",\"%Y-%m-%dT%H:%i:%s\") AS local_date, DATE_FORMAT(ctdate,'%Y%m%d %T') as ct_date from centrtelecom_pays_ext where pay_id=$(2) union select 0,0,0,NULL,NULL"
-db.sql.1=$pay.stamp
-db.sql.2=$pay.id
+db.sql="select stage,session,kiosk, DATE_FORMAT(ctdate,\"%Y%m%d\") AS log_date, DATE_FORMAT(ctdate,'%Y%m%dT%T') as ct_date from centrtelecom_pays_ext where pay_id=$(1) union select 0,0,0,NULL,NULL"
+db.sql.1=$pay.id
 db.execute=$db.sql
 stage.id=$db.field.stage
 var.ct_session=$db.field.session
-var.local_date=$db.field.local_date
+var.log_date=$db.field.log_date
 var.ct_kiosk=$db.field.kiosk
 var.ctdate=$db.field.ct_date
 var.cterror=""
@@ -52,6 +51,11 @@ db.sql.1=$pay.id
 db.sql.2=$var.ctdate
 db.execute=$db.sql
 
+db.sql="SELECT DATE_FORMAT(\"$(1)\",\"%Y%m%d\") AS log_date"
+db.sql.1=$var.ctdate
+db.execute=$db.sql
+var.log_date=$db.field.log_date
+
 stage=$code.act
 
 [pay]
@@ -85,8 +89,9 @@ pay.result=completed
 #db.sql.2=$var.ctdate
 #db.execute=$db.sql
 
-log.file="/tmp/CTK_INTERKAPITAL_$(1)"
-log.file.1=$var.ctdate
+log.file="/tmp/CTK_$(1)_$(2)_itog_01.txt"
+log.file.1=intercapital
+log.file.2=$var.log_date
 log.record="$(1)	$(2)	$(4)	$(5)	$(6)
 "
 log.record.1=$pay.data

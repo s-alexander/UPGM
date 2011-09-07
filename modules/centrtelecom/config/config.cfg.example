@@ -4,13 +4,6 @@ transport=http
 parser=xml
 
 [common]
-wm_login=318517290795
-wm_keyfile=/home/alex/proj/UPGM/modules/webmoney/src/wmsigner/318517290795.kwm
-wm_password=111
-wm_url_check=https://w3s.guarantee.ru/XMLBankGatewaysInputAccess1.aspx 
-wm_url_pay=https://w3s.guarantee.ru/XMLBankGatewaysInput.aspx 
-testmode=1
-#rest_id=14
 
 [parser]
 
