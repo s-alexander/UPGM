@@ -68,7 +68,7 @@ void HTTPTransport::writeImpl(const std::string & data)
 		}
 	} catch ( ... ) { ;; }
 
-	std::string method("get");
+	std::string method("post");
 	try {
 		method=_config("method");
 	} catch ( ...) { ;; }
