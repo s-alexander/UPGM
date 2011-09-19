@@ -68,7 +68,10 @@ void HTTPTransport::writeImpl(const std::string & data)
 		}
 	} catch ( ... ) { ;; }
 
-	const std::string method(_config("method"));
+	std::string method("get");
+	try {
+		method=_config("method");
+	} catch ( ...) { ;; }
 	_curl->SendRequest(url, port, data, ((method == "get" ) ? Curl::GET: Curl::POST), timeout);
 }
 
