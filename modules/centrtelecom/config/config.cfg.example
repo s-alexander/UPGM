@@ -4,6 +4,7 @@ transport=http
 parser=xml
 
 [common]
+service_provider=1
 
 [parser]
 
